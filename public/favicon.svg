@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    text { fill: #0a0a0a; }
+    @media (prefers-color-scheme: dark) { text { fill: #f0ece4; } }
+  </style>
+  <!-- "AB" text — adapts to browser dark/light mode -->
+  <text
+    x="1" y="24"
+    font-family="Inter, system-ui, sans-serif"
+    font-weight="800"
+    font-size="20"
+    letter-spacing="-1"
+  >AB</text>
+  <!-- Lime accent dot -->
+  <circle cx="29" cy="8" r="4" fill="#b5fd4f"/>
+</svg>
