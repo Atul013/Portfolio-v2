@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, ArrowDown, ExternalLink } from 'lucide-react'
 import { personalInfo } from '../data'
@@ -21,14 +21,30 @@ function Reveal({ children, delay = 0, className = '' }) {
 
 export default function Hero() {
   const [roleIdx, setRoleIdx] = useState(0)
+  const gridRef = useRef()
 
   useEffect(() => {
     const t = setInterval(() => setRoleIdx(i => (i + 1) % personalInfo.roles.length), 2800)
     return () => clearInterval(t)
   }, [])
 
+  const onMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    if (gridRef.current) {
+      gridRef.current.style.setProperty('--gx', `${x}%`)
+      gridRef.current.style.setProperty('--gy', `${y}%`)
+      gridRef.current.classList.add('active')
+    }
+  }
+
+  const onMouseLeave = () => {
+    gridRef.current?.classList.remove('active')
+  }
+
   return (
-    <section id="hero" className="hero">
+    <section id="hero" className="hero" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
       {/* Animated background */}
       <div className="hero__bg" aria-hidden="true">
         <motion.div className="hero__glow hero__glow--1"
@@ -39,7 +55,7 @@ export default function Hero() {
           animate={{ scale: [1, 1.1, 1], opacity: [0.06, 0.1, 0.06] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
         />
-        <div className="hero__grid-lines" />
+        <div className="hero__grid-lines" ref={gridRef} />
       </div>
 
       <div className="container hero__inner">

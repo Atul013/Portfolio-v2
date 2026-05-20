@@ -253,10 +253,13 @@ section { padding: 120px 0; }
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 60px 60px;
-  opacity: 0.3;
-  mask-image: radial-gradient(ellipse 70% 70% at 30% 50%, black 0%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 30% 50%, black 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  mask-image: radial-gradient(circle 220px at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 220px at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
+  pointer-events: none;
 }
+.hero__grid-lines.active { opacity: 0.45; }
 .hero__inner {
   position: relative; z-index: 1;
   width: 100%;
@@ -742,7 +745,7 @@ html, body { max-width: 100vw; overflow-x: hidden; }
   .hero__scroll-hint { display: none; }
   .hero__glow--1 { width: 260px; height: 260px; top: -60px; right: -40px; }
   .hero__glow--2 { width: 180px; height: 180px; }
-  .hero__grid-lines { opacity: 0.15; }
+  .hero__grid-lines, .hero__grid-lines.active { opacity: 0 !important; }
 }
 
 /* ─── MARQUEE ─── */
