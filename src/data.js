@@ -165,7 +165,7 @@ export const projects = [
       "A fun experimental ML project (built with @AmalBabu) that predicts the number of seeds inside a banana through real-time camera capture or image upload — combining computer vision with a wonderfully absurd premise.",
     tech: ["Python", "OpenCV", "Machine Learning", "Computer Vision"],
     features: ["Real-time camera capture", "Image upload", "CV pipeline"],
-    link: null,
+    link: "https://www.pazham.foo/",
     github: null,
     award: false,
     status: "complete",
