@@ -12,6 +12,7 @@ import Projects from './components/Projects'
 import FAQ from './components/FAQ'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import ChatBot from './components/ChatBot'
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -51,6 +52,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <ChatBot />
     </>
   )
 }
