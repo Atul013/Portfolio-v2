@@ -1086,13 +1086,14 @@ html, body { max-width: 100vw; overflow-x: hidden; }
   border-color: rgba(181,253,79,0.6);
 }
 
-/* Image + eye overlay */
+/* Image wrap */
 .chatbot-img-wrap {
   position: relative;
   width: 106px;
   height: 106px;
   border-radius: 14px;
   overflow: hidden;
+  background: #0a0a0a;
   box-shadow: 0 0 0 1px rgba(181,253,79,0.15), 0 8px 32px rgba(0,0,0,0.6);
   transition: box-shadow 0.3s;
 }
@@ -1101,17 +1102,11 @@ html, body { max-width: 100vw; overflow-x: hidden; }
 }
 .chatbot-img {
   display: block;
-  width: 106px;
-  height: 106px;
   object-fit: cover;
   user-select: none;
   pointer-events: none;
-}
-.chatbot-eye-svg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: screen;
+  /* Kill white/grey background */
+  mix-blend-mode: multiply;
 }
 
 /* Hide on mobile */

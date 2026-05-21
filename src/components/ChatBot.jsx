@@ -1,23 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-
-// Rendered size of the robot image
-const W = 106
-const H = 106
-
-// Eye centers as px within the W×H render (tweak if needed)
-const L_EYE = { cx: 40, cy: 49 }   // left eye  (viewer's left)
-const R_EYE = { cx: 60, cy: 48 }   // right eye (slightly smaller — perspective angle)
+import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion'
 
 export default function ChatBot() {
   const [isOpen, setIsOpen]   = useState(false)
   const [hovered, setHovered] = useState(false)
-  const [blink, setBlink]     = useState(false)
-  const [pupil, setPupil]     = useState({ x: 0, y: 0 })
-  const wrapRef  = useRef()
-  const blinkRef = useRef()
+  const wrapRef = useRef()
 
-  /* ── Global mouse → pupil offset ── */
+  // Spring-smoothed face parallax (mouse-following)
+  const rawX = useMotionValue(0)
+  const rawY = useMotionValue(0)
+  const faceX = useSpring(rawX, { stiffness: 120, damping: 20 })
+  const faceY = useSpring(rawY, { stiffness: 120, damping: 20 })
+
+  /* ── Global mouse → face parallax ── */
   useEffect(() => {
     const onMove = (e) => {
       if (!wrapRef.current) return
@@ -25,23 +20,12 @@ export default function ChatBot() {
       const cx    = rect.left + rect.width  / 2
       const cy    = rect.top  + rect.height / 2
       const angle = Math.atan2(e.clientY - cy, e.clientX - cx)
-      const dist  = Math.min(3.5, Math.hypot(e.clientX - cx, e.clientY - cy) / 38)
-      setPupil({ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist })
+      const dist  = Math.min(5, Math.hypot(e.clientX - cx, e.clientY - cy) / 30)
+      rawX.set(Math.cos(angle) * dist)
+      rawY.set(Math.sin(angle) * dist)
     }
     window.addEventListener('mousemove', onMove)
     return () => window.removeEventListener('mousemove', onMove)
-  }, [])
-
-  /* ── Random blink every 2.5–5.5 s ── */
-  useEffect(() => {
-    const schedule = () => {
-      blinkRef.current = setTimeout(() => {
-        setBlink(true)
-        setTimeout(() => { setBlink(false); schedule() }, 110)
-      }, 2500 + Math.random() * 3000)
-    }
-    schedule()
-    return () => clearTimeout(blinkRef.current)
   }, [])
 
   const raised = hovered || isOpen
@@ -75,94 +59,22 @@ export default function ChatBot() {
             )}
           </AnimatePresence>
 
-          {/* Robot image + SVG eye overlay */}
+          {/* Robot image — face parallax tracks the mouse */}
           <div ref={wrapRef} className="chatbot-img-wrap chatbot-glitch-wrap">
-
-            <img
+            <motion.img
               src="/robot.png"
               alt="Atul AI"
               className="chatbot-img"
               draggable={false}
-              width={W}
-              height={H}
+              style={{
+                x: faceX,
+                y: faceY,
+                // slightly over-size so parallax shift doesn't expose edges
+                width: 118,
+                height: 118,
+                margin: -6,
+              }}
             />
-
-            {/* Eye tracking SVG — sits exactly over the image */}
-            <svg
-              className="chatbot-eye-svg"
-              viewBox={`0 0 ${W} ${H}`}
-              width={W}
-              height={H}
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* ── Left eye ── */}
-              <motion.g
-                animate={{ scaleY: blink ? 0.05 : 1 }}
-                style={{ transformOrigin: `${L_EYE.cx}px ${L_EYE.cy}px` }}
-                transition={{ duration: 0.07 }}
-              >
-                {/* Outer glow */}
-                <ellipse
-                  cx={L_EYE.cx + pupil.x}
-                  cy={L_EYE.cy + pupil.y}
-                  rx="8" ry="5.5"
-                  fill="rgba(181,253,79,0.22)"
-                />
-                {/* Iris */}
-                <ellipse
-                  cx={L_EYE.cx + pupil.x}
-                  cy={L_EYE.cy + pupil.y}
-                  rx="5.5" ry="4"
-                  fill="rgba(181,253,79,0.55)"
-                />
-                {/* Pupil */}
-                <ellipse
-                  cx={L_EYE.cx + pupil.x}
-                  cy={L_EYE.cy + pupil.y}
-                  rx="2.5" ry="2"
-                  fill="rgba(0,8,0,0.85)"
-                />
-                {/* Specular highlight */}
-                <circle
-                  cx={L_EYE.cx + pupil.x + 2}
-                  cy={L_EYE.cy + pupil.y - 1.8}
-                  r="1.1"
-                  fill="rgba(255,255,255,0.7)"
-                />
-              </motion.g>
-
-              {/* ── Right eye (slightly smaller — angled away) ── */}
-              <motion.g
-                animate={{ scaleY: blink ? 0.05 : 1 }}
-                style={{ transformOrigin: `${R_EYE.cx}px ${R_EYE.cy}px` }}
-                transition={{ duration: 0.07 }}
-              >
-                <ellipse
-                  cx={R_EYE.cx + pupil.x * 0.75}
-                  cy={R_EYE.cy + pupil.y * 0.75}
-                  rx="6.5" ry="4.5"
-                  fill="rgba(181,253,79,0.18)"
-                />
-                <ellipse
-                  cx={R_EYE.cx + pupil.x * 0.75}
-                  cy={R_EYE.cy + pupil.y * 0.75}
-                  rx="4.5" ry="3.2"
-                  fill="rgba(181,253,79,0.5)"
-                />
-                <ellipse
-                  cx={R_EYE.cx + pupil.x * 0.75}
-                  cy={R_EYE.cy + pupil.y * 0.75}
-                  rx="2" ry="1.6"
-                  fill="rgba(0,8,0,0.85)"
-                />
-                <circle
-                  cx={R_EYE.cx + pupil.x * 0.75 + 1.5}
-                  cy={R_EYE.cy + pupil.y * 0.75 - 1.5}
-                  r="0.9"
-                  fill="rgba(255,255,255,0.65)"
-                />
-              </motion.g>
-            </svg>
           </div>
 
         </motion.div>
