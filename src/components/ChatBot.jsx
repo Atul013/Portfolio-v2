@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motio
 export default function ChatBot() {
   const [isOpen, setIsOpen]   = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [atBottom, setAtBottom] = useState(false)
   const wrapRef = useRef()
 
   // Spring-smoothed face parallax (mouse-following)
@@ -28,7 +29,19 @@ export default function ChatBot() {
     return () => window.removeEventListener('mousemove', onMove)
   }, [])
 
-  const raised = hovered || isOpen
+  /* ── Rise up when footer is in view ── */
+  useEffect(() => {
+    const footer = document.querySelector('footer') || document.querySelector('.footer')
+    if (!footer) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setAtBottom(entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    observer.observe(footer)
+    return () => observer.disconnect()
+  }, [])
+
+  const raised = hovered || isOpen || atBottom
 
   return (
     <>
