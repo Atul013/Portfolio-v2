@@ -62,7 +62,7 @@ export default function ChatBot() {
           {/* Robot image — face parallax tracks the mouse */}
           <div ref={wrapRef} className="chatbot-img-wrap chatbot-glitch-wrap">
             <motion.img
-              src="/robot.png"
+              src="/robot-bg.png"
               alt="Atul AI"
               className="chatbot-img"
               draggable={false}
@@ -92,7 +92,7 @@ export default function ChatBot() {
           >
             <div className="chatbot-panel__header">
               <div className="chatbot-panel__avatar">
-                <img src="/robot.png" alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
+                <img src="/robot-bg.png" alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
               </div>
               <div>
                 <p className="chatbot-panel__name">
