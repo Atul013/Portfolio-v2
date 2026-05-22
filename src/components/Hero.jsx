@@ -184,7 +184,19 @@ export default function Hero() {
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ duration: 1, delay: 1.8, ease: 'easeOut' }}
-        />
+        >
+          <motion.div
+            className="hero__scroll-drip"
+            animate={{ y: ['-100%', '250%'] }}
+            transition={{
+              duration: 1.6,
+              delay: 3.2,
+              repeat: Infinity,
+              repeatDelay: 0.8,
+              ease: [0.4, 0, 0.6, 1],
+            }}
+          />
+        </motion.div>
       </motion.div>
 
       <style>{`

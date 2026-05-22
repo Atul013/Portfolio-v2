@@ -396,6 +396,14 @@ section { padding: 120px 0; }
 .hero__scroll-line {
   width: 1px; height: 48px; background: var(--border-2);
   transform-origin: top;
+  position: relative;
+}
+.hero__scroll-drip {
+  position: absolute;
+  top: 0; left: -1px;
+  width: 3px; height: 50%;
+  background: linear-gradient(to bottom, transparent, rgba(var(--accent-rgb), 0.85), transparent);
+  filter: blur(0.5px);
 }
 
 /* ===== MARQUEE ===== */
