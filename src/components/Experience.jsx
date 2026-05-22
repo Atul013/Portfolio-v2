@@ -81,9 +81,13 @@ export default function Experience() {
                 transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ borderColor: 'rgba(var(--accent-rgb), 0.3)', y: -3 }}
               >
-                {edu.current && (
+                {edu.current ? (
                   <span style={{ display: 'inline-block', padding: '3px 10px', background: 'rgba(var(--accent-rgb),0.1)', color: 'var(--accent)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 100, marginBottom: 12, border: '1px solid rgba(var(--accent-rgb),0.2)' }}>
                     Ongoing
+                  </span>
+                ) : (
+                  <span style={{ display: 'inline-block', padding: '3px 10px', background: 'var(--surface-2)', color: 'var(--text-3)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 100, marginBottom: 12, border: '1px solid var(--border-2)' }}>
+                    Completed
                   </span>
                 )}
                 <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: 6, lineHeight: 1.3 }}>{edu.degree}</div>

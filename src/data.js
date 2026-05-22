@@ -181,11 +181,11 @@ export const education = [
     detail: "Specialization in Artificial Intelligence",
   },
   {
-    degree: "Higher Secondary Education — Computer Science",
-    institution: "Carmel HSS, Chalakudy",
+    degree: "Higher Secondary Education",
+    institution: "Carmel Higher Secondary School, Chalakudy",
     period: "2021 – 2023",
     current: false,
-    detail: null,
+    detail: "Specialization in Computer Science",
   },
 ]
 

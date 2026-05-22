@@ -291,7 +291,7 @@ section { padding: 120px 0; }
 .hero__inner {
   position: relative; z-index: 1;
   width: 100%;
-  padding: 60px 0 80px;
+  padding: 60px 32px 80px;
 }
 .hero__avail {
   display: inline-flex; align-items: center; gap: 8px;

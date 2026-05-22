@@ -252,7 +252,7 @@ function ProjectRow({ project, index, expanded, onToggle }) {
                   <p className="pr-section-label">Stack</p>
                   <div className="pr-chips">
                     {project.tech.map((t, i) => (
-                      <span key={t} className={`pr-chip${i === 0 ? ' pr-chip--accent' : ''}`}>{t}</span>
+                      <span key={t} className="pr-chip">{t}</span>
                     ))}
                   </div>
                 </div>
