@@ -223,7 +223,12 @@ function ProjectRow({ project, index, expanded, onToggle }) {
           <span className="pr-tag">{meta.tag}</span>
         </div>
         <div className="pr-blurb">{project.tagline}</div>
-        <div className={`pr-toggle${expanded ? ' pr-toggle--open' : ''}`}>+</div>
+        <div className={`pr-toggle${expanded ? ' pr-toggle--open' : ''}`}>
+          +
+          <svg className="pr-toggle__ring" viewBox="0 0 42 42" aria-hidden="true">
+            <circle cx="21" cy="21" r="20" />
+          </svg>
+        </div>
       </div>
 
       <AnimatePresence initial={false}>
@@ -283,7 +288,7 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function Projects() {
-  const [expanded, setExpanded] = useState('orchestratex')
+  const [expanded, setExpanded] = useState(null)
   const onToggle = (id) => setExpanded(cur => cur === id ? null : id)
 
   return (
