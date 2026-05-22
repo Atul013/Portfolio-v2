@@ -27,7 +27,7 @@ function ProjectVisual({ kind }) {
         </linearGradient>
       </defs>
       <circle cx="180" cy="150" r="120" fill="url(#og1)" />
-      <circle cx="180" cy="150" r="22" style={{ fill: 'var(--bg-2)', stroke: 'var(--accent)' }} strokeWidth="1.2" />
+      <circle cx="180" cy="150" r="22" style={{ fill: 'var(--bg-2)', stroke: 'var(--accent)' }} strokeWidth="0.6" strokeOpacity="0.4" />
       <text x="180" y="155" textAnchor="middle" style={{ fill: 'var(--text)' }} fontFamily="monospace" fontSize="9" letterSpacing="2">ORC</text>
       {[
         { x: 60,  y: 80,  l: 'CLAUDE'  },

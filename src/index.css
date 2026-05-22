@@ -603,7 +603,7 @@ section { padding: 120px 0; }
 }
 .project-row:hover::before { opacity: 1; }
 .project-row:hover    { border-color: var(--border-2); transform: translateY(-2px); }
-.project-row--open    { border-color: var(--accent-dark); box-shadow: 0 20px 50px rgba(0,0,0,0.3), var(--accent-glow) 0 0 40px; }
+.project-row--open    { border-color: rgba(var(--accent-rgb), 0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.3), var(--accent-glow) 0 0 40px; }
 
 /* ── Collapsed header ── */
 .project-row__hd {
