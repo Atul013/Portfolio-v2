@@ -187,7 +187,7 @@ export default function Hero() {
         >
           <motion.div
             className="hero__scroll-drip"
-            animate={{ y: ['-100%', '250%'] }}
+            animate={{ y: ['-100%', '200%'] }}
             transition={{
               duration: 1.6,
               delay: 3.2,
