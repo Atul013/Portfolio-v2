@@ -879,10 +879,10 @@ a.contact-card-val:hover { color: var(--accent); }
   box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.08);
 }
 .cf-input:disabled { opacity: 0.5; cursor: not-allowed; }
-.cf-textarea { min-height: 130px; }
+.cf-textarea { min-height: 130px; flex: 1; }
 .cf-submit {
   display: flex; align-items: center; justify-content: center;
-  gap: 8px; width: 100%; margin-top: auto;
+  gap: 8px; width: 100%;
   padding: 13px 24px; font-size: 14px; font-weight: 700;
   border-radius: 10px; cursor: pointer;
   transition: opacity 0.2s, transform 0.2s;
