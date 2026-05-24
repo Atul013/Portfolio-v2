@@ -1,7 +1,29 @@
-import { useState, useRef, Fragment } from 'react'
+import { useState, useRef, useEffect, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 import { projects as projectsData } from '../data'
+
+/* ── Track scroll direction so cards animate from the right side ── */
+function useScrollDir() {
+  const [dir, setDir] = useState('down')
+  const lastY = useRef(0)
+  useEffect(() => {
+    const handler = () => {
+      const y = window.scrollY
+      if (Math.abs(y - lastY.current) < 4) return   // ignore micro-jitter
+      setDir(y > lastY.current ? 'down' : 'up')
+      lastY.current = y
+    }
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+  return dir
+}
+
+const rowVariants = {
+  hidden: (dir) => ({ opacity: 0, y: dir === 'up' ? -28 : 28 }),
+  visible: { opacity: 1, y: 0 },
+}
 
 const PROJ_META = {
   'orchestratex': { tag: 'Multi-Model · LLM Mesh',       visual: 'orchestrate' },
@@ -194,7 +216,7 @@ function ProjectVisual({ kind }) {
   return null
 }
 
-function ProjectRow({ project, index, expanded, onToggle }) {
+function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
   const ref  = useRef(null)
   const meta = PROJ_META[project.id] || { tag: '', visual: null }
   const num  = String(index + 1).padStart(2, '0')
@@ -211,8 +233,10 @@ function ProjectRow({ project, index, expanded, onToggle }) {
       ref={ref}
       className={`project-row${expanded ? ' project-row--open' : ''}`}
       onMouseMove={onMove}
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      custom={scrollDir}
+      variants={rowVariants}
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: false, margin: '-60px' }}
       transition={{ duration: 0.7, delay: index * 0.055, ease: [0.16, 1, 0.3, 1] }}
     >
@@ -290,6 +314,7 @@ const fadeUp = (delay = 0) => ({
 export default function Projects() {
   const [expanded, setExpanded] = useState(null)
   const onToggle = (id) => setExpanded(cur => cur === id ? null : id)
+  const scrollDir = useScrollDir()
 
   return (
     <section id="projects">
@@ -309,6 +334,7 @@ export default function Projects() {
               index={i}
               expanded={expanded === p.id}
               onToggle={onToggle}
+              scrollDir={scrollDir}
             />
           ))}
         </div>
