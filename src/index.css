@@ -1593,6 +1593,22 @@ html, body { max-width: 100vw; overflow-x: hidden; }
   min-height: 360px !important;
 }
 
+/* ── Mobile chat frost backdrop ── */
+.chatbot-mob-frost {
+  display: none;
+}
+@media (max-width: 768px) {
+  .chatbot-mob-frost {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 597;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
 /* ─── Chatbot mobile ─── */
 @media (max-width: 768px) {
   .chatbot-outer { right: 20px; }
@@ -1636,21 +1652,10 @@ html, body { max-width: 100vw; overflow-x: hidden; }
     max-height: 38vh !important;
     flex: 1;
   }
-  /* Hide expand button — centred modal doesn't work on small screens */
-  .chatbot-panel__icon-btn { display: none !important; }
-
-  /* Kill expanded state on mobile entirely */
-  .chatbot-panel--expanded {
-    top: auto !important;
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-    transform: none !important;
-    bottom: 84px !important;
-    max-height: 62vh !important;
-  }
+  /* Expanded = full-screen (positioning handled in JS, body fill handled here) */
   .chatbot-panel--expanded .chatbot-panel__body {
-    max-height: 38vh !important;
+    flex: 1 1 0 !important;
+    max-height: none !important;
     min-height: 0 !important;
   }
 }

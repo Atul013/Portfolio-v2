@@ -136,6 +136,13 @@ export default function ChatBot() {
   const inputRef    = useRef()
   const fileRef     = useRef()
   const greetingRef = useRef(GREETINGS[Math.floor(Math.random() * GREETINGS.length)])
+  const isMobile    = useRef(typeof window !== 'undefined' && window.innerWidth <= 768)
+
+  useEffect(() => {
+    const check = () => { isMobile.current = window.innerWidth <= 768 }
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   /* ── Spring-smoothed face parallax ── */
   const rawX  = useMotionValue(0)
@@ -301,9 +308,23 @@ export default function ChatBot() {
         </motion.div>
       </div>
 
-      {/* ── Backdrop for expanded mode ── */}
+      {/* ── Frosted backdrop on mobile when chat is open ── */}
       <AnimatePresence>
-        {isOpen && expanded && (
+        {isOpen && isMobile.current && (
+          <motion.div
+            className="chatbot-mob-frost"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Backdrop for expanded mode (desktop only) ── */}
+      <AnimatePresence>
+        {isOpen && expanded && !isMobile.current && (
           <motion.div
             className="chatbot-backdrop"
             initial={{ opacity: 0 }}
@@ -320,6 +341,18 @@ export default function ChatBot() {
         {isOpen && (
           <motion.div
             className={`chatbot-panel${expanded ? ' chatbot-panel--expanded' : ''}`}
+            style={expanded && isMobile.current ? {
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              width: '100%',
+              height: '100dvh',
+              maxHeight: '100dvh',
+              borderRadius: 0,
+              zIndex: 1001,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            } : undefined}
             initial={{ opacity: 0, y: 18, scale: 0.94 }}
             animate={{ opacity: 1, y: 0,  scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.94 }}
