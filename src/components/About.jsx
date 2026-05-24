@@ -32,7 +32,7 @@ function Counter({ to, suffix = '' }) {
 const stats = [
   { value: 3, suffix: 'yrs', label: 'Years building' },
   { value: 6, suffix: '+',  label: 'Projects' },
-  { value: 2, suffix: 'x',  label: 'Internships' },
+  { value: 2, suffix: '',   label: 'Internships' },
 ]
 
 const fadeUp = (delay = 0) => ({
@@ -70,7 +70,7 @@ export default function About() {
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               >
-                Building at the edge of <span>AI & security</span>
+                Building at the edge of AI & security
               </motion.h2>
             </div>
 
@@ -82,8 +82,8 @@ export default function About() {
             </motion.p>
 
             <motion.p className="about__text" style={{ marginTop: -16 }} {...fadeUp(0.3)}>
-              Beyond code, I've been training consistently for three years — the same discipline
-              that keeps me focused and sharp in both my studies and projects.
+              When I'm not building, I'm studying attack surfaces, reading papers on adversarial
+              ML, or thinking about how AI systems break. Curiosity is the constant.
             </motion.p>
 
             <motion.div className="about__links" {...fadeUp(0.38)}>

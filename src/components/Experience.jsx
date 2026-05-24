@@ -74,22 +74,17 @@ export default function Experience() {
             {education.map((edu, i) => (
               <motion.div
                 key={edu.institution}
-                style={{ padding: '24px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--r)' }}
+                className="edu-card"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ borderColor: 'rgba(var(--accent-rgb), 0.3)', y: -3 }}
+                whileHover={{ y: -3 }}
               >
-                {edu.current ? (
-                  <span style={{ display: 'inline-block', padding: '3px 10px', background: 'rgba(var(--accent-rgb),0.1)', color: 'var(--accent)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 100, marginBottom: 12, border: '1px solid rgba(var(--accent-rgb),0.2)' }}>
-                    Ongoing
-                  </span>
-                ) : (
-                  <span style={{ display: 'inline-block', padding: '3px 10px', background: 'var(--surface-2)', color: 'var(--text-3)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 100, marginBottom: 12, border: '1px solid var(--border-2)' }}>
-                    Completed
-                  </span>
-                )}
+                <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', marginBottom: 14,
+                  background: edu.current ? 'var(--accent)' : 'transparent',
+                  boxShadow: edu.current ? '0 0 6px rgba(var(--accent-rgb),0.6)' : 'none',
+                }} />
                 <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: 6, lineHeight: 1.3 }}>{edu.degree}</div>
                 <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginBottom: 4 }}>{edu.institution}</div>
                 {edu.detail && <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500, marginBottom: 10 }}>{edu.detail}</div>}

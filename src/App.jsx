@@ -4,7 +4,6 @@ import Cursor from './components/Cursor'
 import MobileWarning from './components/MobileWarning'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import MarqueeStrip from './components/Marquee'
 import About from './components/About'
 import Skills from './components/Skills'
 import Experience from './components/Experience'
@@ -43,7 +42,6 @@ export default function App() {
       <Navbar theme={theme} toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} />
       <main>
         <Hero />
-        <MarqueeStrip />
         <About />
         <Skills />
         <Experience />

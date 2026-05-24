@@ -158,15 +158,15 @@ export default function ChatBot() {
     return () => window.removeEventListener('mousemove', onMove)
   }, [])
 
-  /* ── Rise when footer enters view ── */
+  /* ── Rise when contact section enters view ── */
   useEffect(() => {
-    const footer = document.querySelector('footer') || document.querySelector('.footer')
-    if (!footer) return
+    const contact = document.getElementById('contact')
+    if (!contact) return
     const obs = new IntersectionObserver(
       ([entry]) => setAtBottom(entry.isIntersecting),
       { threshold: 0.1 }
     )
-    obs.observe(footer)
+    obs.observe(contact)
     return () => obs.disconnect()
   }, [])
 
@@ -267,7 +267,7 @@ export default function ChatBot() {
       <div className="chatbot-outer">
         <motion.div
           className="chatbot-robot"
-          animate={{ y: raised ? 0 : 52 }}
+          animate={{ y: raised ? 0 : 52, opacity: raised ? 1 : 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 26 }}
           onHoverStart={() => setHovered(true)}
           onHoverEnd={() => setHovered(false)}

@@ -110,7 +110,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="hero__avail-dot" />
-          Available for opportunities
+          Open to internships & research collabs
         </motion.div>
 
         {/* Giant name — word by word blur+slide reveal */}
@@ -166,9 +166,7 @@ export default function Hero() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.9, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
-            CS & AI student building intelligent systems at the intersection of{' '}
-            <strong>AI security</strong>, adversarial ML, and{' '}
-            <strong>scalable backend engineering</strong>. From agentic RAG pipelines to lightweight edge models — I build things that matter.
+            CS & AI student building intelligent systems at the intersection of AI security, adversarial ML, and scalable backend engineering. From agentic RAG pipelines to lightweight edge models — I build things that matter.
           </motion.p>
         </div>
 
@@ -217,33 +215,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="hero__scroll-hint"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-      >
-        <span>scroll</span>
-        <motion.div
-          className="hero__scroll-line"
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          transition={{ duration: 1, delay: 1.8, ease: 'easeOut' }}
-        >
-          <motion.div
-            className="hero__scroll-drip"
-            animate={{ y: ['-100%', '200%'] }}
-            transition={{
-              duration: 1.6,
-              delay: 3.2,
-              repeat: Infinity,
-              repeatDelay: 0.8,
-              ease: [0.4, 0, 0.6, 1],
-            }}
-          />
-        </motion.div>
-      </motion.div>
 
       <style>{`
         .hero__domain-link:hover { color: var(--accent) !important; }

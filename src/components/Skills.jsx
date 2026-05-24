@@ -57,7 +57,7 @@ export default function Skills() {
 
         <motion.div className="skills__header" {...fadeUp()}>
           <p className="section-eyebrow">Skills</p>
-          <h2 className="section-title">A toolkit <em>engineered</em><br />for systems that think.</h2>
+          <h2 className="section-title">The stack.</h2>
         </motion.div>
 
         <motion.div className="skills-wrap" {...fadeUp(0.12)}>

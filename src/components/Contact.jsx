@@ -23,17 +23,16 @@ function Terminal() {
       </div>
       <div className="ct-body">
         <div className="ct-line">
-          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ whoami
+          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ cat currently_building
         </div>
-        <div className="ct-out">→ engineer · researcher · 19 · permanently curious</div>
+        <div className="ct-out">→ <span className="ct-hi">agentic onboarding system</span> @ Torcue Digital</div>
+        <div className="ct-out">→ <span className="ct-hi">BOB</span> — voice-first local AI orchestrator</div>
 
         <div className="ct-line ct-gap">
-          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ status --availability
+          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ cat interests --deep
         </div>
-        <div className="ct-out">
-          → accepting: <span className="ct-hi">research collab</span> · <span className="ct-hi">contract</span> · <span className="ct-hi">open source</span>
-        </div>
-        <div className="ct-out">→ timezone: IST · async-first</div>
+        <div className="ct-out">→ adversarial ML · red team methodology</div>
+        <div className="ct-out">→ edge inference · how AI systems <span className="ct-hi">break</span></div>
 
         <div className="ct-line ct-gap">
           <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> ${' '}
@@ -56,9 +55,8 @@ function CopyBtn() {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <button className="contact-copy" onClick={copy}>
-      {copied ? <Check size={13} /> : <Copy size={13} />}
-      {copied ? 'Copied!' : 'Copy'}
+    <button className="contact-copy contact-copy--icon" onClick={copy} title={copied ? 'Copied!' : 'Copy email'}>
+      {copied ? <Check size={14} /> : <Copy size={14} />}
     </button>
   )
 }
@@ -132,7 +130,7 @@ function ContactForm() {
         <label className="cf-label">Message</label>
         <textarea
           className="cf-input cf-textarea"
-          placeholder="I got lost finding this page, but I'm here now. Let's build something great — nothing's impossible when you're aiming to be the best. 🗡️"
+          placeholder="Hey Atul — came across your work and I have a problem worth solving. Think you're up for it?"
           rows={5}
           value={fields.message}
           onChange={set('message')}
@@ -191,12 +189,7 @@ export default function Contact() {
                     {personalInfo.email}
                   </a>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <CopyBtn />
-                  <a href={`mailto:${personalInfo.email}`} className="btn-lime" style={{ fontSize: 13, padding: '8px 18px' }}>
-                    Email <ArrowUpRight size={14} />
-                  </a>
-                </div>
+                <CopyBtn />
               </div>
 
               {/* GitHub */}

@@ -12,8 +12,9 @@ const links = [
 ]
 
 export default function Navbar({ theme, toggleTheme }) {
-  const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [scrolled,       setScrolled]       = useState(false)
+  const [open,           setOpen]           = useState(false)
+  const [activeSection,  setActiveSection]  = useState('')
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50)
@@ -25,6 +26,24 @@ export default function Navbar({ theme, toggleTheme }) {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
+
+  /* ── Active section via IntersectionObserver ── */
+  useEffect(() => {
+    const ids      = links.map(l => l.href.slice(1))
+    const elements = ids.map(id => document.getElementById(id)).filter(Boolean)
+    if (!elements.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
+        })
+      },
+      { rootMargin: '-15% 0px -75% 0px', threshold: 0 }
+    )
+    elements.forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <>
@@ -42,7 +61,13 @@ export default function Navbar({ theme, toggleTheme }) {
 
           <nav className="navbar__links">
             {links.map(l => (
-              <a key={l.href} href={l.href} className="navbar__link">{l.label}</a>
+              <a
+                key={l.href}
+                href={l.href}
+                className={`navbar__link${activeSection === l.href.slice(1) ? ' active' : ''}`}
+              >
+                {l.label}
+              </a>
             ))}
           </nav>
 
@@ -71,28 +96,52 @@ export default function Navbar({ theme, toggleTheme }) {
 
       <AnimatePresence>
         {open && (
-          <>
-            <motion.div className="mob-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)} />
-            <motion.nav className="mob-menu" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 360, damping: 36 }}>
-              <div className="mob-menu__top">
-                <button onClick={() => setOpen(false)} style={{ color: 'var(--text-2)' }}><X size={22} /></button>
-              </div>
-              <div className="mob-menu__links">
-                {links.map((l, i) => (
-                  <motion.a key={l.href} href={l.href} className="mob-menu__link" onClick={() => setOpen(false)} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.1 }}>
-                    {l.label}
-                  </motion.a>
-                ))}
-              </div>
-              <div className="mob-menu__foot">
-                <button onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-2)', fontSize: 14, padding: '12px 0' }}>
-                  {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                </button>
-                <a href="mailto:atulbiju13@gmail.com" className="btn-lime" style={{ justifyContent: 'center' }}>Get In Touch</a>
-              </div>
-            </motion.nav>
-          </>
+          <motion.nav
+            className="mob-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+          >
+            {/* Top bar */}
+            <div className="mob-menu__top">
+              <a href="#hero" className="navbar__logo" onClick={() => setOpen(false)}>
+                {personalInfo.initials}<span className="navbar__logo-dot">.</span>
+              </a>
+              <button className="mob-menu__close" onClick={() => setOpen(false)} aria-label="Close menu">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Numbered links */}
+            <div className="mob-menu__links">
+              {links.map((l, i) => (
+                <motion.a
+                  key={l.href}
+                  href={l.href}
+                  className={`mob-menu__link${activeSection === l.href.slice(1) ? ' active' : ''}`}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.055 + 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <span className="mob-menu__num">0{i + 1}</span>
+                  <span className="mob-menu__label">{l.label}</span>
+                </motion.a>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="mob-menu__foot">
+              <button className="mob-menu__theme" onClick={toggleTheme}>
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </button>
+              <a href="mailto:atulbiju13@gmail.com" className="btn-lime" style={{ fontSize: 13, padding: '10px 22px' }} onClick={() => setOpen(false)}>
+                Get in touch
+              </a>
+            </div>
+          </motion.nav>
         )}
       </AnimatePresence>
     </>

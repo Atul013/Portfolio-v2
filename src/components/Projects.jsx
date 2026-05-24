@@ -36,12 +36,12 @@ const rowVariants = {
 }
 
 const PROJ_META = {
-  'orchestratex': { tag: 'Multi-Model · LLM Mesh',       visual: 'orchestrate' },
-  'hackquest':    { tag: 'Award · Real-time Alerting',    visual: 'hackquest'   },
-  'agentic-rag':  { tag: 'Retrieval · Reasoning',         visual: 'rag'         },
-  'edge-slm':     { tag: 'Edge · Small Language Model',   visual: 'edgepy'      },
-  'bob':          { tag: 'Voice · Local Orchestration',   visual: 'bob'         },
-  'pazham':       { tag: 'Computer Vision · Playful',     visual: 'pazham'      },
+  'orchestratex': { tag: 'Live at orchestratex.me',       visual: 'orchestrate' },
+  'hackquest':    { tag: '1st place · 24-hr hackathon',   visual: 'hackquest'   },
+  'agentic-rag':  { tag: 'Built at Torcue Digital',       visual: 'rag'         },
+  'edge-slm':     { tag: 'Distillation · ONNX inference', visual: 'edgepy'      },
+  'bob':          { tag: 'In development · local-first',  visual: 'bob'         },
+  'pazham':       { tag: 'CV · built with Amal Babu',     visual: 'pazham'      },
 }
 
 /* ── SVG visuals — accent colors via CSS variables ── */
@@ -331,7 +331,6 @@ export default function Projects() {
         <motion.div {...fadeUp()} style={{ marginBottom: 56 }}>
           <div className="proj-header">
             <p className="section-eyebrow">Projects</p>
-            <p className="proj-expand-hint">click to expand</p>
           </div>
         </motion.div>
 
