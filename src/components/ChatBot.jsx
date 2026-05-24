@@ -2,6 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion'
 import { Maximize2, Minimize2, Paperclip, X } from 'lucide-react'
 
+const GREETINGS = [
+  "Hey! Ask me anything about Atul's work, projects, or experience.",
+  "Hi! I'm Atul's AI — what are you curious about?",
+  "What's up! Ask me about Atul's projects, skills, or how to reach him.",
+  "Hey there! Curious about what Atul's been building? Fire away.",
+  "Hi! I know Atul's work inside out — what do you want to know?",
+]
+
 /* ── Animated typing indicator ── */
 function TypingDots() {
   return (
@@ -58,10 +66,11 @@ export default function ChatBot() {
   const [loading,   setLoading]   = useState(false)
   const [pendingImg, setPendingImg] = useState(null) // { dataUrl, mime }
 
-  const wrapRef  = useRef()
-  const bodyRef  = useRef()
-  const inputRef = useRef()
-  const fileRef  = useRef()
+  const wrapRef     = useRef()
+  const bodyRef     = useRef()
+  const inputRef    = useRef()
+  const fileRef     = useRef()
+  const greetingRef = useRef(GREETINGS[Math.floor(Math.random() * GREETINGS.length)])
 
   /* ── Spring-smoothed face parallax ── */
   const rawX  = useMotionValue(0)
@@ -287,8 +296,7 @@ export default function ChatBot() {
                 transition={{ delay: 0.12 }}
               >
                 <span className="chatbot-prompt">{'> '}</span>
-                Hey! I'm Atul's AI twin 👾<br />
-                Ask me anything about his work, projects, or experience.
+                {greetingRef.current}
               </motion.div>
 
               {/* Conversation history */}
