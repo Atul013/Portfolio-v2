@@ -213,7 +213,7 @@ function ProjectRow({ project, index, expanded, onToggle }) {
       onMouseMove={onMove}
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
+      viewport={{ once: false, margin: '-60px' }}
       transition={{ duration: 0.7, delay: index * 0.055, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="project-row__hd" onClick={() => onToggle(project.id)}>
