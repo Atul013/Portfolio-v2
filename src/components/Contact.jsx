@@ -12,6 +12,42 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] },
 })
 
+function Terminal() {
+  return (
+    <motion.div className="contact-terminal" {...fadeUp(0.34)}>
+      <div className="ct-header">
+        <span className="ct-dot ct-dot--r" />
+        <span className="ct-dot ct-dot--y" />
+        <span className="ct-dot ct-dot--g" />
+        <span className="ct-title">~/atul · zsh</span>
+      </div>
+      <div className="ct-body">
+        <div className="ct-line">
+          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ whoami
+        </div>
+        <div className="ct-out">→ engineer · researcher · 19 · permanently curious</div>
+
+        <div className="ct-line ct-gap">
+          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> $ status --availability
+        </div>
+        <div className="ct-out">
+          → accepting: <span className="ct-hi">research collab</span> · <span className="ct-hi">contract</span> · <span className="ct-hi">open source</span>
+        </div>
+        <div className="ct-out">→ timezone: IST · async-first</div>
+
+        <div className="ct-line ct-gap">
+          <span className="ct-user">atul@nodes</span> <span className="ct-path">~/portfolio</span> ${' '}
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'steps(1)' }}
+            style={{ color: 'var(--accent)' }}
+          >▋</motion.span>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 function CopyBtn() {
   const [copied, setCopied] = useState(false)
   const copy = () => {
@@ -140,6 +176,7 @@ export default function Contact() {
             <motion.div className="contact-loc" {...fadeUp(0.28)}>
               <MapPin size={13} />{personalInfo.location}
             </motion.div>
+            <Terminal />
           </div>
 
           {/* Right */}

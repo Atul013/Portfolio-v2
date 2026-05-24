@@ -915,6 +915,50 @@ a.contact-card-val:hover { color: var(--accent); }
 }
 @media (max-width: 600px) { .cf-row { grid-template-columns: 1fr; } }
 
+/* ── Contact terminal widget ── */
+.contact-terminal {
+  margin-top: 32px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: var(--mono);
+  background: var(--bg-2);
+}
+.ct-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.ct-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ct-dot--r { background: #ff5f57; }
+.ct-dot--y { background: #febc2e; }
+.ct-dot--g { background: #28c840; }
+.ct-title {
+  font-size: 10.5px;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  margin-left: 6px;
+}
+.ct-body {
+  padding: 16px 20px 20px;
+  font-size: 12.5px;
+  line-height: 2;
+}
+.ct-line { color: var(--text-2); }
+.ct-gap  { margin-top: 0.75em; }
+.ct-out  { color: var(--text-3); padding-left: 2px; }
+.ct-user { color: #a78bfa; }
+.ct-path { color: var(--accent); }
+.ct-hi   { color: var(--accent); font-weight: 500; }
+
 /* ===== FOOTER ===== */
 .footer { border-top: 1px solid var(--border); padding: 48px 0 28px; }
 .footer-inner { display: flex; flex-direction: column; gap: 32px; }
