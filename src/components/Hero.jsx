@@ -19,6 +19,49 @@ function Reveal({ children, delay = 0, className = '' }) {
   )
 }
 
+const RESUME_URL = 'https://drive.google.com/file/d/1GVGrZt3zj8AddQO8YB0t5ZstVOxkenbA/view?usp=sharing'
+
+function ResumeLink() {
+  const [step, setStep] = useState('idle') // 'idle' | 'prompt'
+  const timerRef = useRef(null)
+
+  const handleClick = () => {
+    if (step === 'idle') {
+      setStep('prompt')
+      timerRef.current = setTimeout(() => setStep('idle'), 5000)
+    } else {
+      clearTimeout(timerRef.current)
+      window.open(RESUME_URL, '_blank', 'noopener,noreferrer')
+      setStep('idle')
+    }
+  }
+
+  return (
+    <button className="hero__resume-btn" onClick={handleClick} aria-label="View resume">
+      <AnimatePresence mode="wait">
+        {step === 'idle' ? (
+          <motion.span
+            key="label"
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+          >
+            ↓ Resume &nbsp;·&nbsp; <span className="hero__resume-date">Last updated Feb 2026</span>
+          </motion.span>
+        ) : (
+          <motion.span
+            key="prompt"
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+            style={{ color: 'var(--accent)' }}
+          >
+            Explored everything yet? Click again 👀
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </button>
+  )
+}
+
 export default function Hero() {
   const [roleIdx, setRoleIdx] = useState(0)
   const gridRef = useRef()
@@ -168,6 +211,15 @@ export default function Hero() {
           <a href={`mailto:${personalInfo.email}`} className="hero__social">
             <Mail size={16} /> Email
           </a>
+        </motion.div>
+
+        {/* Resume */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          style={{ marginTop: 18 }}
+        >
+          <ResumeLink />
         </motion.div>
       </div>
 
