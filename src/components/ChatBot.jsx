@@ -10,6 +10,73 @@ const GREETINGS = [
   "Hi! I know Atul's work inside out — what do you want to know?",
 ]
 
+/* ── Lightweight markdown → React renderer ── */
+function renderInline(text, keyPrefix = '') {
+  const parts = []
+  let rest = text
+  let i = 0
+
+  while (rest.length > 0) {
+    const key = `${keyPrefix}-${i++}`
+
+    // [text](url)
+    const link = rest.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)/)
+    if (link) {
+      parts.push(<a key={key} href={link[2]} target="_blank" rel="noopener noreferrer" className="chatbot-md-link">{link[1]}</a>)
+      rest = rest.slice(link[0].length); continue
+    }
+    // **bold**
+    const bold = rest.match(/^\*\*([^*]+)\*\*/)
+    if (bold) {
+      parts.push(<strong key={key}>{bold[1]}</strong>)
+      rest = rest.slice(bold[0].length); continue
+    }
+    // *italic*
+    const italic = rest.match(/^\*([^*\n]+)\*/)
+    if (italic) {
+      parts.push(<em key={key}>{italic[1]}</em>)
+      rest = rest.slice(italic[0].length); continue
+    }
+    // `code`
+    const code = rest.match(/^`([^`]+)`/)
+    if (code) {
+      parts.push(<code key={key} className="chatbot-md-code">{code[1]}</code>)
+      rest = rest.slice(code[0].length); continue
+    }
+    // plain text up to next special char
+    const next = rest.search(/[\[*`]/)
+    if (next === -1) { parts.push(rest); rest = ''; break }
+    parts.push(rest.slice(0, next))
+    rest = rest.slice(next)
+  }
+  return parts
+}
+
+function MarkdownText({ text }) {
+  // Split into paragraphs on double-newline, lines on single
+  const paragraphs = text.split(/\n{2,}/)
+  return (
+    <>
+      {paragraphs.map((para, pi) => {
+        const lines = para.split('\n')
+        return (
+          <span
+            key={pi}
+            style={{ display: 'block', marginBottom: pi < paragraphs.length - 1 ? '0.7em' : 0 }}
+          >
+            {lines.map((line, li) => (
+              <span key={li}>
+                {renderInline(line, `${pi}-${li}`)}
+                {li < lines.length - 1 && <br />}
+              </span>
+            ))}
+          </span>
+        )
+      })}
+    </>
+  )
+}
+
 /* ── Animated typing indicator ── */
 function TypingDots() {
   return (
@@ -48,10 +115,8 @@ function Bubble({ msg, index }) {
       {msg._img && (
         <img src={msg._img.dataUrl} alt="attached" className="chatbot-msg-img" />
       )}
-      {/* Message text — preserve newlines */}
-      {text && (
-        <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>
-      )}
+      {/* Message text — rendered markdown */}
+      {text && <MarkdownText text={text} />}
     </motion.div>
   )
 }
