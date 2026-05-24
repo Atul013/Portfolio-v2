@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect, Fragment } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 import { projects as projectsData } from '../data'
 
-/* ── Track scroll direction so cards animate from the right side ── */
+/* ── Track scroll direction globally ── */
 function useScrollDir() {
   const [dir, setDir] = useState('down')
   const lastY = useRef(0)
   useEffect(() => {
     const handler = () => {
       const y = window.scrollY
-      if (Math.abs(y - lastY.current) < 4) return   // ignore micro-jitter
+      if (Math.abs(y - lastY.current) < 4) return
       setDir(y > lastY.current ? 'down' : 'up')
       lastY.current = y
     }
@@ -21,7 +21,7 @@ function useScrollDir() {
 }
 
 const rowVariants = {
-  hidden: (dir) => ({ opacity: 0, y: dir === 'up' ? -20 : 20 }),
+  hidden: (dir) => ({ opacity: 0, y: dir === 'up' ? -24 : 24 }),
   visible: { opacity: 1, y: 0 },
 }
 
@@ -216,10 +216,15 @@ function ProjectVisual({ kind }) {
   return null
 }
 
-function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
+function ProjectRow({ project, index, expanded, onToggle, isVisible, entryDir, total }) {
   const ref  = useRef(null)
   const meta = PROJ_META[project.id] || { tag: '', visual: null }
   const num  = String(index + 1).padStart(2, '0')
+
+  // Stagger: going down → 0,1,2,3… going up → reversed so top card fires last
+  const delay = entryDir === 'up'
+    ? (total - 1 - index) * 0.07
+    : index * 0.07
 
   const onMove = (e) => {
     if (!ref.current) return
@@ -233,12 +238,11 @@ function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
       ref={ref}
       className={`project-row${expanded ? ' project-row--open' : ''}`}
       onMouseMove={onMove}
-      custom={scrollDir}
+      custom={entryDir}
       variants={rowVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false, margin: '-60px' }}
-      transition={{ duration: 0.55, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+      animate={isVisible ? 'visible' : 'hidden'}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="project-row__hd" onClick={() => onToggle(project.id)}>
         <div className="pr-idx">P · {num}</div>
@@ -312,12 +316,26 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function Projects() {
-  const [expanded, setExpanded] = useState(null)
+  const [expanded, setExpanded]   = useState(null)
+  const [entryDir, setEntryDir]   = useState('down')
   const onToggle = (id) => setExpanded(cur => cur === id ? null : id)
   const scrollDir = useScrollDir()
 
+  // Section-level observer — fires once when section enters/leaves view
+  const sectionRef = useRef(null)
+  const isInView   = useInView(sectionRef, { once: false, amount: 0.08 })
+  const wasInView  = useRef(false)
+
+  useEffect(() => {
+    if (isInView && !wasInView.current) {
+      // Capture direction at the exact moment section comes into view
+      setEntryDir(scrollDir)
+    }
+    wasInView.current = isInView
+  }, [isInView]) // intentionally omit scrollDir — we want the snapshot at entry
+
   return (
-    <section id="projects">
+    <section id="projects" ref={sectionRef}>
       <div className="container">
         <motion.div {...fadeUp()} style={{ marginBottom: 56 }}>
           <div className="proj-header">
@@ -334,7 +352,9 @@ export default function Projects() {
               index={i}
               expanded={expanded === p.id}
               onToggle={onToggle}
-              scrollDir={scrollDir}
+              isVisible={isInView}
+              entryDir={entryDir}
+              total={projectsData.length}
             />
           ))}
         </div>
