@@ -45,7 +45,7 @@ function ResumeLink() {
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.25 }}
           >
-            ↓ Resume &nbsp;·&nbsp; <span className="hero__resume-date">Last updated Feb 2026</span>
+            <span style={{ display: 'inline-block', width: 16, textAlign: 'center', flexShrink: 0 }}>↓</span> Resume &nbsp;·&nbsp; <span className="hero__resume-date">Last updated Feb 2026</span>
           </motion.span>
         ) : (
           <motion.span
@@ -54,7 +54,7 @@ function ResumeLink() {
             transition={{ duration: 0.25 }}
             style={{ color: 'var(--accent)' }}
           >
-            Explored everything yet? Click again 👀
+            Explored everything yet? Click again
           </motion.span>
         )}
       </AnimatePresence>
