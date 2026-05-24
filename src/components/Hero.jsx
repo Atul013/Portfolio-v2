@@ -185,12 +185,6 @@ export default function Hero() {
           <a href="#contact" className="btn-ghost">
             Get In Touch
           </a>
-          <a href={`https://${personalInfo.domain}`} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--mono)', transition: 'color 0.2s', marginLeft: 4 }}
-            className="hero__domain-link"
-          >
-            {personalInfo.domain} <ExternalLink size={11} />
-          </a>
         </motion.div>
 
         {/* Socials */}

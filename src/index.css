@@ -384,14 +384,14 @@ section { padding: 120px 0; }
 .hero__social-sep { color: var(--border-2); }
 .hero__resume-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--mono); font-size: 11.5px;
+  font-family: var(--mono); font-size: 13.5px;
   color: var(--text-3);
   background: none; border: none; cursor: pointer;
   padding: 0; transition: color 0.2s;
   min-width: 260px; text-align: left;
 }
 .hero__resume-btn:hover { color: var(--text-2); }
-.hero__resume-date { opacity: 0.6; }
+.hero__resume-date { opacity: 0.55; font-size: 12px; }
 .hero__scroll-hint {
   position: absolute; bottom: 32px; left: 50%;
   transform: translateX(-50%);
