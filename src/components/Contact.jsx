@@ -180,7 +180,7 @@ export default function Contact() {
           </div>
 
           {/* Right */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <motion.div className="contact-cards" {...fadeUp(0.15)}>
               {/* Email */}
               <div className="contact-card">
@@ -221,7 +221,7 @@ export default function Contact() {
             </motion.div>
 
             {/* Form */}
-            <motion.div {...fadeUp(0.25)} style={{ marginTop: 20 }}>
+            <motion.div {...fadeUp(0.25)} style={{ marginTop: 20, flex: 1, display: 'flex', flexDirection: 'column' }}>
               <ContactForm />
             </motion.div>
           </div>
