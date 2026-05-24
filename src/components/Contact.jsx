@@ -72,7 +72,7 @@ function ContactForm() {
           <input
             className="cf-input"
             type="text"
-            placeholder="Ada Lovelace"
+            placeholder="Roronoa Zoro"
             value={fields.name}
             onChange={set('name')}
             required
@@ -84,7 +84,7 @@ function ContactForm() {
           <input
             className="cf-input"
             type="email"
-            placeholder="hello@example.com"
+            placeholder="zoro@strawhat.crew"
             value={fields.email}
             onChange={set('email')}
             required
@@ -96,7 +96,7 @@ function ContactForm() {
         <label className="cf-label">Message</label>
         <textarea
           className="cf-input cf-textarea"
-          placeholder="Tell me about your project, opportunity, or just say hi 👋"
+          placeholder="I got lost finding this page, but I'm here now. Let's build something great — nothing's impossible when you're aiming to be the best. 🗡️"
           rows={5}
           value={fields.message}
           onChange={set('message')}
