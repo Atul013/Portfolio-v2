@@ -54,7 +54,7 @@ function ResumeLink() {
             transition={{ duration: 0.25 }}
             style={{ color: 'var(--accent)' }}
           >
-            Explored everything yet? Click again
+            Explored everything yet? Click again for the resume
           </motion.span>
         )}
       </AnimatePresence>
