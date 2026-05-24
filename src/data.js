@@ -162,7 +162,7 @@ export const projects = [
     name: "Pazham",
     tagline: "ML-powered banana seed predictor",
     description:
-      "A fun experimental ML project (built with @AmalBabu) that predicts the number of seeds inside a banana through real-time camera capture or image upload — combining computer vision with a wonderfully absurd premise.",
+      "A fun experimental ML project (built with @Am4l-babu) that predicts the number of seeds inside a banana through real-time camera capture or image upload — combining computer vision with a wonderfully absurd premise.",
     tech: ["Python", "OpenCV", "Machine Learning", "Computer Vision"],
     features: ["Real-time camera capture", "Image upload", "CV pipeline"],
     link: "https://www.pazham.foo/",

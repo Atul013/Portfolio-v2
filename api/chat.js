@@ -43,7 +43,7 @@ PROJECTS (what Atul's actually built):
    Voice-controlled device system with a RAM-driven workflow. Local-first, natural language commands. Atul's most experimental project right now.
    Stack: Python, System Automation, Voice Processing, Local AI
 
-6. Pazham — pazham.foo (co-built with @AmalBabu)
+6. Pazham — pazham.foo (co-built with Amal Babu — github.com/Am4l-babu)
    Predicts how many seeds are inside a banana from a photo. Computer vision meets a wonderfully absurd premise — and it actually works.
    Stack: Python, OpenCV, Machine Learning
 
