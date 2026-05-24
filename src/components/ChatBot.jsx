@@ -287,7 +287,7 @@ export default function ChatBot() {
             </div>
 
             {/* ── Body ── */}
-            <div className="chatbot-panel__body" ref={bodyRef}>
+            <div className="chatbot-panel__body" ref={bodyRef} data-lenis-prevent>
               {/* Greeting */}
               <motion.div
                 className="chatbot-panel__bubble chatbot-panel__bubble--assistant"
