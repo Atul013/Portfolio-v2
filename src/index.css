@@ -314,7 +314,7 @@ section { padding: 120px 0; }
 }
 .hero__name-wrap { margin-bottom: 28px; }
 .hero__name {
-  font-size: clamp(3rem, 13vw, 11rem);
+  font-size: clamp(3rem, 11.5vw, 9.5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 0.93;
