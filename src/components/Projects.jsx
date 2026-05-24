@@ -21,7 +21,7 @@ function useScrollDir() {
 }
 
 const rowVariants = {
-  hidden: (dir) => ({ opacity: 0, y: dir === 'up' ? -28 : 28 }),
+  hidden: (dir) => ({ opacity: 0, y: dir === 'up' ? -20 : 20 }),
   visible: { opacity: 1, y: 0 },
 }
 
@@ -238,7 +238,7 @@ function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: false, margin: '-60px' }}
-      transition={{ duration: 0.7, delay: index * 0.055, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.55, delay: 0, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="project-row__hd" onClick={() => onToggle(project.id)}>
         <div className="pr-idx">P · {num}</div>
