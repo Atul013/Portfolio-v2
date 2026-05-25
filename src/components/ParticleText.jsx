@@ -12,14 +12,12 @@ import { useEffect, useRef } from 'react'
 */
 
 const CFG = {
-  R:       110,   // cursor influence radius (px) — only react when very close
-  innerR:  12,    // tiny repel zone right at cursor tip
-  targetR: 50,    // ← particles orbit at THIS radius from cursor
-  radialK: 0.07,  // spring constant enforcing targetR
-  tangF:   4.5,   // tangential speed → counterclockwise orbit
-  repelF:  8,
-  spring:  0.007,
-  friction:0.970,
+  R:       140,    // cursor influence radius
+  innerR:  16,     // repel zone at cursor tip
+  sweepF:  3.8,    // cursor velocity → particle velocity (the sweep force)
+  repelF:  6,
+  spring:  0.008,  // very weak spring → particles drift back slowly
+  friction:0.974,  // very high → particles keep momentum → ring persists
   dotRMin: 0.15,
   dotRMax: 0.85,
 }
@@ -60,6 +58,8 @@ export default function ParticleText({
 
     let particles = []
     let mouse     = { x: -9999, y: -9999 }
+    let mvx = 0, mvy = 0          // smoothed cursor velocity
+    let lastX = -9999, lastY = -9999
     let raf       = null
 
     /* ── Build: sample text → particles with hero-relative origins ── */
@@ -135,6 +135,10 @@ export default function ParticleText({
       const heroH = hero.offsetHeight
       c.clearRect(0, 0, heroW, heroH)
 
+      // Decay cursor velocity each frame — goes to zero if mouse stops
+      mvx *= 0.80
+      mvy *= 0.80
+
       const mx     = mouse.x
       const my     = mouse.y
       const active = mx > -9000
@@ -147,25 +151,20 @@ export default function ParticleText({
           const d2 = dx * dx + dy * dy
 
           if (d2 < CFG.R * CFG.R && d2 > 0.001) {
-            const d  = Math.sqrt(d2)
-            const t  = 1 - d / CFG.R   // influence: 1 at cursor, 0 at edge
+            const d = Math.sqrt(d2)
+            const t = 1 - d / CFG.R   // influence falloff
 
             if (d < CFG.innerR) {
-              // Too close → repel
+              // Tiny repel right at cursor tip
               const f = (1 - d / CFG.innerR) * CFG.repelF
               p.vx -= (dx / d) * f
               p.vy -= (dy / d) * f
             } else {
-              // Radial spring: dr > 0 = outside ring → pull in
-              //                dr < 0 = inside ring  → push out
-              // Result: all particles converge on a clean ring at targetR
-              const dr = d - CFG.targetR
-              p.vx += (dx / d) * dr * CFG.radialK * t
-              p.vy += (dy / d) * dr * CFG.radialK * t
-
-              // Tangential: counterclockwise orbit at targetR
-              p.vx += (-dy / d) * CFG.tangF * t
-              p.vy += ( dx / d) * CFG.tangF * t
+              // Transfer cursor velocity to particle — this is the sweep
+              // Moving in a circle → cursor velocity is tangential to circle
+              // → particles get tangential kick → they trace the circle path
+              p.vx += mvx * t * CFG.sweepF
+              p.vy += mvy * t * CFG.sweepF
             }
           }
         }
@@ -212,12 +211,24 @@ export default function ParticleText({
 
     document.fonts.ready.then(() => { build(); patchAccent(); loop() })
 
-    /* ── Mouse ── */
+    /* ── Mouse — track position + smoothed velocity ── */
     const onMove = (e) => {
-      const r = canvas.getBoundingClientRect()
-      mouse = { x: e.clientX - r.left, y: e.clientY - r.top }
+      const r    = canvas.getBoundingClientRect()
+      const newX = e.clientX - r.left
+      const newY = e.clientY - r.top
+      if (lastX > -9000) {
+        const rawVx = Math.max(-40, Math.min(40, newX - lastX))
+        const rawVy = Math.max(-40, Math.min(40, newY - lastY))
+        mvx = mvx * 0.3 + rawVx * 0.7
+        mvy = mvy * 0.3 + rawVy * 0.7
+      }
+      lastX = newX; lastY = newY
+      mouse = { x: newX, y: newY }
     }
-    const onLeave = () => { mouse = { x: -9999, y: -9999 } }
+    const onLeave = () => {
+      mouse = { x: -9999, y: -9999 }
+      lastX = -9999; lastY = -9999
+    }
 
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseleave', onLeave)
@@ -236,7 +247,7 @@ export default function ParticleText({
     /* ── Reduced motion ── */
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       CFG.spring = 0.22; CFG.friction = 0.94
-      CFG.attractF = 0;  CFG.tangentialF = 0; CFG.repelF = 0
+      CFG.sweepF = 0;    CFG.repelF = 0
     }
 
     return () => {
