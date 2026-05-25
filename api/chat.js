@@ -74,19 +74,29 @@ You ONLY discuss topics connected to Atul — his work, projects, skills, experi
 
 Be GENEROUS with what counts as related: if someone asks a general AI/coding/security/tech question, answer it — it's in Atul's world. Same for anything about his hobbies, life, opinions on tech, etc.
 
-ONLY hard-redirect truly off-topic stuff — random trivia, anime plot summaries, recipes, celebrity gossip, sports scores, homework help on topics totally outside Atul's world, etc.
+ONLY hard-redirect truly off-topic stuff — random trivia, anime plots, recipes, celebrity gossip, sports scores, homework help on topics totally outside Atul's world, etc.
 
-OFF-TOPIC FLOW:
-1. Do NOT answer the off-topic question.
-2. Say something fun and self-aware. Examples:
-   - "Ha, Atul would've nailed that one — this is a bit outside my lane 😄 Want me to ping him?"
-   - "Bold question for a portfolio bot lol. Atul would've answered that better — should I let him know you dropped by?"
-   - "I'm pretty locked in on Atul's world here, but he might actually know the answer. Want me to send him a note?"
-3. Ask for their name: "What's your name? I'll shoot him a quick message."
-4. Once you have their name, call the notify_atul tool immediately — pass their name + a short summary of what they asked.
-5. After the tool executes, respond casually: "Done! Atul's been notified — he'll probably get back to you within a day or two. Anything else about his work I can help with?"
+OFF-TOPIC FLOW — follow this exact sequence:
 
-IMPORTANT: Never call notify_atul unless the user has explicitly said yes and given you their name. Collect both pieces of info conversationally before calling the tool.`
+STEP 1 — Deflect with personality. Pick one of these vibes (rotate, don't repeat):
+   - "Ha, Atul would've crushed that one — but that's outside my lane 😄 He's probably mid-set at the gym or buried in some college assignment right now. Want me to ping him anyway?"
+   - "Bold question for a portfolio bot lol. Atul would've answered that better — he might be down sick or surviving a deadline rn, but he'd still want to know. Should I send him a note?"
+   - "I'm locked in on Atul's world here 😅 He's probably doing something questionable for his CGPA right now, but he'd actually enjoy this question. Want me to notify him?"
+   - "Atul definitely has thoughts on that — I, unfortunately, do not 😂 He might be at the gym or knee-deep in college chaos, but should I shoot him a message?"
+
+STEP 2 — If they say yes, ask for BOTH in one message:
+   "What's your name and the best way to reach you? (email, Instagram, LinkedIn — whatever works)"
+
+STEP 3 — Once you have their name AND contact info, immediately call notify_atul with all three fields.
+
+STEP 4 — After the tool executes, say something like:
+   "Done! Atul's been notified 📨 He'll get back to you within 48 hours — and if he's not drowning in assignments or recovering from leg day, expect a reply in under 2 hours 😄"
+   OR: "Sent! He might be busy with college stuff or at the gym rn, but within 48 hours max. If he's free, knowing him it'll be under 2 hours."
+
+IMPORTANT:
+- Never call notify_atul until you have the visitor's name AND contact info.
+- If they only give a name, ask once more for contact: "And a way to reach you? Email or socials is fine."
+- Keep the banter light — this should feel like talking to Atul's slightly sarcastic but helpful AI, not a customer service bot.`
 
 /* ─────────────────────────────────────────────────────────
    TOOL DEFINITION — notify_atul
@@ -96,20 +106,24 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'notify_atul',
-      description: 'Sends Atul an email notification about a visitor who asked an off-topic question and wants to connect. Only call this after collecting the visitor\'s name.',
+      description: "Sends Atul an email notification about a visitor who asked an off-topic question and wants to connect. Only call this after collecting BOTH the visitor's name AND their contact info.",
       parameters: {
         type: 'object',
         properties: {
           visitor_name: {
             type: 'string',
-            description: "The visitor's first name or full name",
+            description: "The visitor's name",
+          },
+          contact_info: {
+            type: 'string',
+            description: "How to reach the visitor — email, Instagram handle, LinkedIn, phone, whatever they gave",
           },
           question: {
             type: 'string',
             description: 'A short summary of what the visitor asked (the off-topic question or topic)',
           },
         },
-        required: ['visitor_name', 'question'],
+        required: ['visitor_name', 'contact_info', 'question'],
       },
     },
   },
@@ -144,7 +158,7 @@ async function callLLM(messages, withTools = true, apiKey) {
   return res.json()
 }
 
-async function sendNotification(visitor_name, question) {
+async function sendNotification(visitor_name, contact_info, question) {
   // Format time in IST (Atul's timezone)
   const now     = new Date()
   const timeIST = now.toLocaleTimeString('en-IN', {
@@ -161,24 +175,30 @@ async function sendNotification(visitor_name, question) {
   })
 
   const message =
-    `${visitor_name} visited icarus13.in today at ${timeIST} hours (${dateIST} IST) ` +
+    `${visitor_name} dropped by icarus13.in today at ${timeIST} hours (${dateIST} IST) ` +
     `and asked: "${question}" — your AI had to redirect them, it was funny lol.\n\n` +
+    `Reach them at: ${contact_info}\n\n` +
     `— atul_ai 🤖`
 
-  const body = JSON.stringify({
+  const payload = {
     name:     visitor_name,
     email:    'atul_ai@icarus13.in',
     message,
-    _subject: `Portfolio ping from ${visitor_name} 👀`,
-  })
+    _subject: `👀 ${visitor_name} pinged you from icarus13.in`,
+  }
 
   const res = await fetch(FORMSPREE, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body,
+    body:    JSON.stringify(payload),
   })
 
-  if (!res.ok) console.error('Formspree error:', res.status, await res.text())
+  if (!res.ok) {
+    const errText = await res.text()
+    console.error('Formspree error:', res.status, errText)
+    // Surface the status so caller can decide how to handle
+    throw Object.assign(new Error('Formspree failed'), { status: res.status })
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -209,16 +229,26 @@ export default async function handler(req, res) {
       try { args = JSON.parse(call.function.arguments) } catch {}
 
       // Execute the tool server-side
-      await sendNotification(args.visitor_name ?? 'Someone', args.question ?? '(unknown)')
+      let notifyOk = true
+      try {
+        await sendNotification(
+          args.visitor_name  ?? 'Someone',
+          args.contact_info  ?? '(no contact given)',
+          args.question      ?? '(unknown)',
+        )
+      } catch (e) {
+        notifyOk = false
+        console.error('Notification send failed:', e.message)
+      }
 
       // Feed tool result back for a natural follow-up response
       const withResult = [
         ...messages,
         msg,   // assistant message containing the tool_calls
         {
-          role:        'tool',
+          role:         'tool',
           tool_call_id: call.id,
-          content:     JSON.stringify({ success: true }),
+          content:      JSON.stringify({ success: notifyOk }),
         },
       ]
 
