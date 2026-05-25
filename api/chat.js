@@ -1,6 +1,7 @@
 const NVIDIA_API  = 'https://integrate.api.nvidia.com/v1/chat/completions'
 const MODEL       = 'moonshotai/kimi-k2.6'
-const FORMSPREE   = 'https://formspree.io/f/xnjrzlej'
+const WEB3FORMS   = 'https://api.web3forms.com/submit'
+const FORMSPREE   = 'https://formspree.io/f/xnjrzlej'   // fallback
 
 /* ─────────────────────────────────────────────────────────
    SYSTEM PROMPT
@@ -159,19 +160,12 @@ async function callLLM(messages, withTools = true, apiKey) {
 }
 
 async function sendNotification(visitor_name, contact_info, question) {
-  // Format time in IST (Atul's timezone)
   const now     = new Date()
   const timeIST = now.toLocaleTimeString('en-IN', {
-    hour:     '2-digit',
-    minute:   '2-digit',
-    hour12:   false,
-    timeZone: 'Asia/Kolkata',
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata',
   })
   const dateIST = now.toLocaleDateString('en-IN', {
-    day:      'numeric',
-    month:    'short',
-    year:     'numeric',
-    timeZone: 'Asia/Kolkata',
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata',
   })
 
   const message =
@@ -180,25 +174,51 @@ async function sendNotification(visitor_name, contact_info, question) {
     `Reach them at: ${contact_info}\n\n` +
     `— atul_ai 🤖`
 
-  const payload = {
-    name:     visitor_name,
-    email:    'atul_ai@icarus13.in',
-    message,
-    _subject: `👀 ${visitor_name} pinged you from icarus13.in`,
+  // ── Primary: Web3Forms (250 / month free) ──
+  const w3key = process.env.WEB3FORMS_KEY
+  if (w3key) {
+    try {
+      const res = await fetch(WEB3FORMS, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: w3key,
+          name:       visitor_name,
+          email:      'atul_ai@icarus13.in',
+          message,
+          subject:    `👀 ${visitor_name} pinged you from icarus13.in`,
+        }),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (res.ok && json.success) {
+        console.log('Web3Forms: sent ✓')
+        return   // success — don't hit fallback
+      }
+      console.warn('Web3Forms non-success:', res.status, json)
+    } catch (e) {
+      console.warn('Web3Forms fetch failed:', e.message)
+    }
   }
 
-  const res = await fetch(FORMSPREE, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body:    JSON.stringify(payload),
-  })
-
-  if (!res.ok) {
-    const errText = await res.text()
-    console.error('Formspree error:', res.status, errText)
-    // Surface the status so caller can decide how to handle
-    throw Object.assign(new Error('Formspree failed'), { status: res.status })
+  // ── Fallback: Formspree (50 / month free) ──
+  try {
+    const res = await fetch(FORMSPREE, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        name:     visitor_name,
+        email:    'atul_ai@icarus13.in',
+        message,
+        _subject: `👀 ${visitor_name} pinged you from icarus13.in`,
+      }),
+    })
+    if (res.ok) { console.log('Formspree fallback: sent ✓'); return }
+    console.error('Formspree error:', res.status, await res.text())
+  } catch (e) {
+    console.error('Formspree fetch failed:', e.message)
   }
+
+  throw new Error('All notification providers failed')
 }
 
 /* ─────────────────────────────────────────────────────────
