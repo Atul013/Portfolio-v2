@@ -1,24 +1,25 @@
 import { useEffect, useRef } from 'react'
 
 /*
-  ParticleText — orbital vortex particle text.
+  ParticleText — cursor-attraction particle text.
 
   Physics:
-  - Radial attraction: pulls particles toward cursor
-  - Tangential force: pushes particles sideways (perpendicular to radius)
-  → Combined: particles orbit the cursor like a galaxy / vortex
-  - Spring: slowly decays orbits back to text origin (~3–4 s)
-  - Per-particle spring variation: staggered return = layered rings
+  - Radial attraction: pulls particles toward cursor position
+  - Inner repel zone: pushes particles sideways when they get too close → creates
+    the visible void + natural swirl (no explicit tangential force needed)
+  - Ring/vortex effect comes from cursor circular motion: cursor moves faster
+    than particles can follow → particles trail the cursor's circular path → ring
+  - Spring: slowly returns particles to text origin (~3–4 s)
+  - Per-particle spring variation: staggered return = layered depth
 */
 
 const CFG = {
-  R:        220,   // cursor influence radius — broad enough to pull the full text block
-  innerR:   22,    // repel void right at cursor tip
-  atF:      0.10,  // radial attraction toward cursor
-  tanF:     0.16,  // tangential (⊥ to radius) → orbital spin
-  repelF:   9,     // strong push-back right at innerR
-  spring:   0.006, // very weak spring → rings persist ~4–5 s before dissolving
-  friction: 0.978, // very high → orbital momentum is preserved between frames
+  R:        200,   // cursor influence radius
+  innerR:   24,    // repel void at cursor tip — larger = more visible gap + more swirl
+  atF:      0.14,  // radial attraction strength
+  repelF:   7,     // push-back right at innerR
+  spring:   0.006, // very weak spring → trail persists 3–4 s before dissolving
+  friction: 0.96,  // high but not extreme → trail persists without explosion
   dotRMin:  0.15,
   dotRMax:  0.85,
 }
@@ -149,19 +150,17 @@ export default function ParticleText({
             const t = 1 - d / CFG.R   // linear influence falloff
 
             if (d < CFG.innerR) {
-              // Strong repel right at cursor tip → visible void / gap
+              // Repel right at cursor tip → visible void + deflects particles sideways
+              // The sideways deflection is what creates the natural swirl / ring look
               const f = (1 - d / CFG.innerR) * CFG.repelF
               p.vx -= (dx / d) * f
               p.vy -= (dy / d) * f
             } else {
-              // Radial attraction — draws particles toward cursor
+              // Pure radial attraction — draws particles toward cursor
+              // Ring/vortex forms when cursor moves in a circle faster than
+              // particles can follow → they trail the cursor's circular path
               p.vx += (dx / d) * CFG.atF * t
               p.vy += (dy / d) * CFG.atF * t
-
-              // Tangential force — ⊥ to radius, CCW rotation
-              // (-dy/d, dx/d) is the unit vector 90° CCW from (dx/d, dy/d)
-              p.vx += (-dy / d) * CFG.tanF * t
-              p.vy +=  (dx / d) * CFG.tanF * t
             }
           }
         }
@@ -234,8 +233,7 @@ export default function ParticleText({
     /* ── Reduced motion ── */
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       CFG.spring   = 0.22; CFG.friction = 0.94
-      CFG.atF      = 0;    CFG.tanF     = 0
-      CFG.repelF   = 0
+      CFG.atF      = 0;    CFG.repelF   = 0
     }
 
     return () => {
