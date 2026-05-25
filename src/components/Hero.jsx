@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, ArrowDown, ExternalLink } from 'lucide-react'
 import { personalInfo } from '../data'
+import ParticleText from './ParticleText'
 
 // Text line reveal: slides up from behind a clip
 function Reveal({ children, delay = 0, className = '' }) {
@@ -113,8 +114,23 @@ export default function Hero() {
           Open to internships & research collabs
         </motion.div>
 
-        {/* Giant name — word by word blur+slide reveal */}
-        <div className="hero__name-wrap">
+        {/* Giant name — particle canvas on desktop */}
+        <motion.div
+          className="hero__particle-wrap"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+        >
+          <ParticleText
+            lines={['ATUL', 'BIJU.']}
+            color="#f0ece4"
+            accentLine={1}
+            accentColor="var(--accent-particle)"
+          />
+        </motion.div>
+
+        {/* Mobile fallback — regular text (hidden on desktop) */}
+        <div className="hero__name-wrap hero__name-wrap--mob">
           {['ATUL', 'BIJU.'].map((word, i) => (
             <div key={word} className="hero__name-line">
               <motion.span

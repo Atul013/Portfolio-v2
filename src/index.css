@@ -384,6 +384,20 @@ section { padding: 120px 0; }
   0%,100% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.25); }
   50% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb),0.08); }
 }
+/* Particle canvas accent color (needs a real hex, not a CSS var, for canvas fillStyle) */
+:root               { --accent-particle: #b5fd4f; }
+[data-theme="light"]{ --accent-particle: #5a9200; }
+
+/* Desktop: show canvas, hide text fallback */
+.hero__particle-wrap    { margin-bottom: 28px; }
+.hero__name-wrap--mob   { display: none; }
+
+/* Mobile: hide canvas, show text */
+@media (max-width: 768px) {
+  .hero__particle-wrap  { display: none; }
+  .hero__name-wrap--mob { display: block; }
+}
+
 .hero__name-wrap { margin-bottom: 28px; }
 .hero__name {
   font-family: 'Familjen Grotesk', 'Inter', sans-serif;
