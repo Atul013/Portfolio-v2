@@ -1,37 +1,26 @@
-import { useState, useRef, useEffect, Fragment } from 'react'
+import { useState, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 import { projects as projectsData } from '../data'
-
-/* ── Track scroll direction globally ── */
-function useScrollDir() {
-  const [dir, setDir] = useState('down')
-  const lastY = useRef(0)
-  useEffect(() => {
-    const handler = () => {
-      const y = window.scrollY
-      if (Math.abs(y - lastY.current) < 4) return
-      setDir(y > lastY.current ? 'down' : 'up')
-      lastY.current = y
-    }
-    window.addEventListener('scroll', handler, { passive: true })
-    return () => window.removeEventListener('scroll', handler)
-  }, [])
-  return dir
-}
+import { useScrollDirection, useStillness } from '../hooks'
+import { Scramble } from './motion-primitives'
 
 const rowVariants = {
-  // custom = { dir, idx }
-  hidden: ({ dir }) => ({ opacity: 0, y: dir === 'up' ? -22 : 22 }),
-  visible: ({ dir, idx }) => ({
+  // custom = { dir, idx, still }
+  hidden: ({ dir, still }) =>
+    still ? { opacity: 1, y: 0 } : { opacity: 0, y: dir === 'up' ? -22 : 22 },
+  visible: ({ dir, idx, still }) => ({
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.65,
-      // going down: natural stagger per card / going up: all at once (they all re-enter simultaneously)
-      delay: dir === 'up' ? 0 : idx * 0.07,
-      ease: [0.16, 1, 0.3, 1],
-    },
+    transition: still
+      ? { duration: 0 }
+      : {
+          duration: 0.65,
+          // Descending: stagger down the list, matching reading order.
+          // Ascending: no stagger, since the reader meets the rows bottom-first.
+          delay: dir === 'up' ? 0 : idx * 0.07,
+          ease: [0.16, 1, 0.3, 1],
+        },
   }),
 }
 
@@ -226,7 +215,7 @@ function ProjectVisual({ kind }) {
   return null
 }
 
-function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
+function ProjectRow({ project, index, expanded, onToggle, scrollDir, still }) {
   const ref  = useRef(null)
   const meta = PROJ_META[project.id] || { tag: '', visual: null }
   const num  = String(index + 1).padStart(2, '0')
@@ -243,11 +232,11 @@ function ProjectRow({ project, index, expanded, onToggle, scrollDir }) {
       ref={ref}
       className={`project-row${expanded ? ' project-row--open' : ''}`}
       onMouseMove={onMove}
-      custom={{ dir: scrollDir, idx: index }}
+      custom={{ dir: scrollDir, idx: index, still }}
       variants={rowVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: false, margin: '-60px' }}
+      viewport={{ once: true, margin: '-60px' }}
     >
       <div className="project-row__hd" onClick={() => onToggle(project.id)}>
         <div className="pr-idx">P · {num}</div>
@@ -323,14 +312,20 @@ const fadeUp = (delay = 0) => ({
 export default function Projects() {
   const [expanded, setExpanded] = useState(null)
   const onToggle = (id) => setExpanded(cur => cur === id ? null : id)
-  const scrollDir = useScrollDir()
+  const scrollDir = useScrollDirection()
+  const still = useStillness()
 
   return (
     <section id="projects">
       <div className="container">
         <motion.div {...fadeUp()} style={{ marginBottom: 56 }}>
           <div className="proj-header">
-            <p className="section-eyebrow">Projects</p>
+            <h2 className="section-title">
+              <Scramble text="Selected work" />
+            </h2>
+            <p className="proj-lede">
+              Six things I built end to end. Open any row for the engineering detail.
+            </p>
           </div>
         </motion.div>
 
@@ -343,6 +338,7 @@ export default function Projects() {
               expanded={expanded === p.id}
               onToggle={onToggle}
               scrollDir={scrollDir}
+              still={still}
             />
           ))}
         </div>

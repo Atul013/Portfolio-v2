@@ -156,7 +156,6 @@ export default function Contact() {
 
           {/* Left */}
           <div>
-            <motion.p className="section-eyebrow" {...fadeUp()}>Contact</motion.p>
             <div style={{ overflow: 'hidden' }}>
               <motion.h2
                 className="contact-heading"

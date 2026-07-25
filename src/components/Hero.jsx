@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, ArrowDown, ExternalLink } from 'lucide-react'
 import { personalInfo } from '../data'
 import ParticleText from './ParticleText'
+import { Magnetic } from './motion-primitives'
 
 // Text line reveal: slides up from behind a clip
 function Reveal({ children, delay = 0, className = '' }) {
@@ -193,12 +194,16 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.15, ease: [0.16, 1, 0.3, 1] }}
         >
-          <a href="#projects" className="btn-lime">
-            Explore Work <ArrowDown size={15} />
-          </a>
-          <a href="#contact" className="btn-ghost">
-            Get In Touch
-          </a>
+          <Magnetic style={{ display: 'inline-flex' }}>
+            <a href="#projects" className="btn-lime">
+              Explore Work <ArrowDown size={15} />
+            </a>
+          </Magnetic>
+          <Magnetic style={{ display: 'inline-flex' }}>
+            <a href="#contact" className="btn-ghost">
+              Get In Touch
+            </a>
+          </Magnetic>
         </motion.div>
 
         {/* Socials */}

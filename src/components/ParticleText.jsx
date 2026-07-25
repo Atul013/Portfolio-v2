@@ -4,22 +4,27 @@ import { useEffect, useRef } from 'react'
   ParticleText — cursor-attraction particle text.
 
   Physics:
-  - Radial attraction: pulls particles toward cursor position
-  - Inner repel zone: pushes particles sideways when they get too close → creates
-    the visible void + natural swirl (no explicit tangential force needed)
-  - Ring/vortex effect comes from cursor circular motion: cursor moves faster
-    than particles can follow → particles trail the cursor's circular path → ring
-  - Spring: slowly returns particles to text origin (~3–4 s)
-  - Per-particle spring variation: staggered return = layered depth
+  - Radial attraction: pulls particles toward the pointer
+  - Inner repel zone: pushes particles sideways once they get too close, which
+    creates the visible void and the natural swirl (no explicit tangential force)
+  - Ring/vortex comes from pointer circular motion: the pointer outruns the
+    particles, so they trail its circular path
+  - Spring: slowly returns particles to their text origin (~3-4 s)
+  - Per-particle spring variation: staggered return reads as layered depth
+
+  Runs on touch as well as mouse, and parks itself when the hero scrolls away.
 */
 
-const CFG = {
-  R:        200,   // cursor influence radius
-  innerR:   24,    // repel void at cursor tip — larger = more visible gap + more swirl
+// Must match the display face in index.css, since canvas can't read CSS vars.
+const CANVAS_FONT = "700 %SIZE%px 'Archivo', sans-serif"
+
+const BASE_CFG = {
+  R:        200,   // pointer influence radius
+  innerR:   24,    // repel void at the pointer tip; larger = bigger gap + more swirl
   atF:      0.14,  // radial attraction strength
   repelF:   7,     // push-back right at innerR
-  spring:   0.006, // very weak spring → trail persists 3–4 s before dissolving
-  friction: 0.96,  // high but not extreme → trail persists without explosion
+  spring:   0.006, // very weak spring, so the trail persists 3-4 s before dissolving
+  friction: 0.96,  // high but not extreme: trail persists without exploding
   dotRMin:  0.15,
   dotRMax:  0.85,
 }
@@ -38,7 +43,7 @@ export default function ParticleText({
     const spacer = spacerRef.current
     if (!canvas || !spacer) return
 
-    // Hoist canvas to #hero → particles can roam the full section
+    // Hoist the canvas to #hero so particles can roam the whole section.
     const hero = document.getElementById('hero')
     if (!hero) return
 
@@ -55,14 +60,24 @@ export default function ParticleText({
 
     const c   = canvas.getContext('2d')
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
-    const mob = window.innerWidth <= 768
-    const SPACING = mob ? 3.8 : 1.8
+
+    // Per-instance copy. The previous version mutated a module-level object for
+    // reduced motion, which leaked that state into every later mount.
+    const cfg = { ...BASE_CFG }
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (still) {
+      cfg.spring = 0.22
+      cfg.friction = 0.94
+      cfg.atF = 0
+      cfg.repelF = 0
+    }
 
     let particles = []
     let mouse     = { x: -9999, y: -9999 }
     let raf       = null
+    let running   = false
 
-    /* ── Build: sample text → particles with hero-relative origins ── */
+    /* ── Build: sample text, emit particles with hero-relative origins ── */
     const build = () => {
       const heroW = hero.offsetWidth
       const heroH = hero.offsetHeight
@@ -72,6 +87,10 @@ export default function ParticleText({
       canvas.height = Math.round(heroH * dpr)
       c.setTransform(dpr, 0, 0, dpr, 0, 0)
 
+      // Sampling stride. Coarser on small screens: fewer, slightly larger dots
+      // keep the silhouette readable while cutting particle count hard.
+      const SPACING = heroW <= 768 ? 3.4 : 1.8
+
       // Where does the text area sit inside the hero?
       const heroRect   = hero.getBoundingClientRect()
       const spacerRect = spacer.getBoundingClientRect()
@@ -79,19 +98,20 @@ export default function ParticleText({
       const textY      = spacerRect.top  - heroRect.top
 
       const W        = spacerRect.width
+      if (!W) return
       const fontSize = Math.min(W * 0.195, 215)
       const lineH    = fontSize * 1.08
       const textH    = lineH * lines.length + fontSize * 0.18
 
       spacer.style.height = `${textH}px`
 
-      // Sample text on small offscreen canvas
+      // Sample the text on a small offscreen canvas.
       const off = document.createElement('canvas')
       off.width  = Math.round(W     * dpr)
       off.height = Math.round(textH * dpr)
-      const oc   = off.getContext('2d')
+      const oc   = off.getContext('2d', { willReadFrequently: true })
       oc.scale(dpr, dpr)
-      oc.font         = `700 ${fontSize}px 'Familjen Grotesk', sans-serif`
+      oc.font         = CANVAS_FONT.replace('%SIZE%', fontSize)
       oc.textAlign    = 'left'
       oc.textBaseline = 'top'
       oc.fillStyle    = '#fff'
@@ -118,9 +138,9 @@ export default function ParticleText({
               ox,  oy,
               vx:  (Math.random() - 0.5) * 4,
               vy:  (Math.random() - 0.5) * 4,
-              r:   CFG.dotRMin + Math.random() * (CFG.dotRMax - CFG.dotRMin),
-              // Per-particle spring → different return rates → layered rings
-              sp:  CFG.spring * (0.4 + Math.random() * 1.2),
+              r:   cfg.dotRMin + Math.random() * (cfg.dotRMax - cfg.dotRMin),
+              // Per-particle spring: different return rates, layered rings
+              sp:  cfg.spring * (0.4 + Math.random() * 1.2),
               col: li === accentLine ? accentColor : color,
             })
           }
@@ -145,39 +165,38 @@ export default function ParticleText({
           const dy = my - p.y
           const d2 = dx * dx + dy * dy
 
-          if (d2 < CFG.R * CFG.R && d2 > 0.001) {
+          if (d2 < cfg.R * cfg.R && d2 > 0.001) {
             const d = Math.sqrt(d2)
-            const t = 1 - d / CFG.R   // linear influence falloff
+            const t = 1 - d / cfg.R   // linear influence falloff
 
-            if (d < CFG.innerR) {
-              // Repel right at cursor tip → visible void + deflects particles sideways
-              // The sideways deflection is what creates the natural swirl / ring look
-              const f = (1 - d / CFG.innerR) * CFG.repelF
+            if (d < cfg.innerR) {
+              // Repel at the pointer tip: opens the void and deflects particles
+              // sideways, which is what produces the swirl.
+              const f = (1 - d / cfg.innerR) * cfg.repelF
               p.vx -= (dx / d) * f
               p.vy -= (dy / d) * f
             } else {
-              // Pure radial attraction — draws particles toward cursor
-              // Ring/vortex forms when cursor moves in a circle faster than
-              // particles can follow → they trail the cursor's circular path
-              p.vx += (dx / d) * CFG.atF * t
-              p.vy += (dy / d) * CFG.atF * t
+              // Pure radial attraction. The ring forms when the pointer circles
+              // faster than the particles can follow.
+              p.vx += (dx / d) * cfg.atF * t
+              p.vy += (dy / d) * cfg.atF * t
             }
           }
         }
 
-        // Spring back to origin (per-particle stiffness → staggered decay)
+        // Spring back to origin (per-particle stiffness, staggered decay)
         p.vx += (p.ox - p.x) * p.sp
         p.vy += (p.oy - p.y) * p.sp
 
-        p.vx *= CFG.friction
-        p.vy *= CFG.friction
+        p.vx *= cfg.friction
+        p.vy *= cfg.friction
         p.x  += p.vx
         p.y  += p.vy
 
         ;(grps[p.col] ??= []).push(p)
       }
 
-      // Single path per color → 2 GPU flushes total regardless of particle count
+      // One path per colour: 2 GPU flushes total regardless of particle count.
       for (const [col, ps] of Object.entries(grps)) {
         c.fillStyle = col
         c.beginPath()
@@ -191,7 +210,17 @@ export default function ParticleText({
       raf = requestAnimationFrame(loop)
     }
 
-    /* ── CSS var → hex ── */
+    const start = () => {
+      if (running) return
+      running = true
+      raf = requestAnimationFrame(loop)
+    }
+    const stop = () => {
+      running = false
+      cancelAnimationFrame(raf)
+    }
+
+    /* ── CSS var → hex (canvas fillStyle can't take var()) ── */
     const resolveColor = (raw) => {
       if (!raw.startsWith('var(')) return raw
       const name = raw.match(/var\(\s*(--[\w-]+)\s*\)/)?.[1]
@@ -205,43 +234,69 @@ export default function ParticleText({
       }
     }
 
-    document.fonts.ready.then(() => { build(); patchAccent(); loop() })
+    let cancelled = false
+    document.fonts.ready.then(() => {
+      if (cancelled) return
+      build(); patchAccent(); start()
+    })
 
-    /* ── Mouse — track position only (no velocity needed for orbital model) ── */
-    const onMove = (e) => {
-      const r  = canvas.getBoundingClientRect()
-      mouse = { x: e.clientX - r.left, y: e.clientY - r.top }
+    /* ── Pointer: one path for mouse and touch ── */
+    const setFromEvent = (clientX, clientY) => {
+      const r = canvas.getBoundingClientRect()
+      mouse = { x: clientX - r.left, y: clientY - r.top }
     }
-    const onLeave = () => {
-      mouse = { x: -9999, y: -9999 }
+    const onPointerMove = (e) => setFromEvent(e.clientX, e.clientY)
+    const onPointerGone = () => { mouse = { x: -9999, y: -9999 } }
+
+    // Touch drags the field around; lifting the finger lets it spring home.
+    const onTouchMove = (e) => {
+      const t = e.touches[0]
+      if (t) setFromEvent(t.clientX, t.clientY)
     }
 
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseleave', onLeave)
+    document.addEventListener('pointermove', onPointerMove, { passive: true })
+    document.addEventListener('pointerleave', onPointerGone)
+    document.addEventListener('pointercancel', onPointerGone)
+    hero.addEventListener('touchmove', onTouchMove, { passive: true })
+    hero.addEventListener('touchend', onPointerGone, { passive: true })
 
     /* ── Resize ── */
     let resizeTimer
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer)
       resizeTimer = setTimeout(() => {
-        cancelAnimationFrame(raf)
-        build(); patchAccent(); loop()
+        stop()
+        build(); patchAccent(); start()
       }, 150)
     })
     ro.observe(hero)
 
-    /* ── Reduced motion ── */
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      CFG.spring   = 0.22; CFG.friction = 0.94
-      CFG.atF      = 0;    CFG.repelF   = 0
+    // Park the loop when the hero is off-screen or the tab is hidden. Without
+    // this the rAF runs for the entire session no matter where the reader is.
+    const io = new IntersectionObserver(
+      ([entry]) => { entry.isIntersecting ? start() : stop() },
+      { threshold: 0 }
+    )
+    io.observe(hero)
+
+    const onVisibility = () => {
+      if (document.hidden) stop()
+      else if (hero.getBoundingClientRect().bottom > 0) start()
     }
+    document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      cancelAnimationFrame(raf)
+      cancelled = true
+      stop()
       clearTimeout(resizeTimer)
       ro.disconnect()
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseleave', onLeave)
+      io.disconnect()
+      document.removeEventListener('pointermove', onPointerMove)
+      document.removeEventListener('pointerleave', onPointerGone)
+      document.removeEventListener('pointercancel', onPointerGone)
+      document.removeEventListener('visibilitychange', onVisibility)
+      hero.removeEventListener('touchmove', onTouchMove)
+      hero.removeEventListener('touchend', onPointerGone)
       if (canvas.parentElement === hero) hero.removeChild(canvas)
     }
   }, [])

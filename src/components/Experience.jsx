@@ -16,7 +16,6 @@ export default function Experience() {
 
         {/* Header */}
         <motion.div style={{ marginBottom: 60 }} {...fadeUp()}>
-          <p className="section-eyebrow">Experience</p>
           <div style={{ overflow: 'hidden' }}>
             <motion.h2
               className="section-title"
@@ -69,7 +68,7 @@ export default function Experience() {
 
         {/* Education */}
         <motion.div style={{ marginTop: 72 }} {...fadeUp(0.1)}>
-          <p className="section-eyebrow" style={{ marginBottom: 24 }}>Education</p>
+          <h3 className="sub-title">Education</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {education.map((edu, i) => (
               <motion.div

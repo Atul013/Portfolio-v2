@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sun, Moon, Menu, X } from 'lucide-react'
 import { personalInfo } from '../data'
+import { useScrolledPast } from '../hooks'
+import CommandPalette from './CommandPalette'
 
 const links = [
   { label: 'About', href: '#about' },
@@ -12,15 +14,9 @@ const links = [
 ]
 
 export default function Navbar({ theme, toggleTheme }) {
-  const [scrolled,       setScrolled]       = useState(false)
+  const scrolled = useScrolledPast(50)
   const [open,           setOpen]           = useState(false)
   const [activeSection,  setActiveSection]  = useState('')
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', fn)
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -72,6 +68,7 @@ export default function Navbar({ theme, toggleTheme }) {
           </nav>
 
           <div className="navbar__actions">
+            <CommandPalette theme={theme} toggleTheme={toggleTheme} />
             <button className="navbar__theme" onClick={toggleTheme} aria-label="Toggle theme">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span

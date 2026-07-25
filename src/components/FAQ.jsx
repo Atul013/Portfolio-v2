@@ -20,7 +20,6 @@ export default function FAQ() {
 
           {/* Sticky header */}
           <motion.div className="faq-sticky" {...fadeUp()}>
-            <p className="section-eyebrow">FAQ</p>
             <div style={{ overflow: 'hidden' }}>
               <motion.h2
                 className="section-title" style={{ marginBottom: 16 }}

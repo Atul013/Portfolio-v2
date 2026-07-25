@@ -1,53 +1,73 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 
+const RING = 34
+const DOT = 7
+const INTERACTIVE = 'a, button, [data-cursor], input, textarea, select, label, [role="button"]'
+
 export default function Cursor() {
-  const [isPointer, setIsPointer] = useState(false)
   const [mounted, setMounted] = useState(false)
+
   const dotX = useMotionValue(-200)
   const dotY = useMotionValue(-200)
   const ringX = useSpring(useMotionValue(-200), { stiffness: 260, damping: 26 })
   const ringY = useSpring(useMotionValue(-200), { stiffness: 260, damping: 26 })
-  const ringRef = useRef()
+
+  // Scale, not width/height: layout properties thrash on every frame.
+  const ringScale = useSpring(useMotionValue(1), { stiffness: 340, damping: 24 })
+  const dotScale = useSpring(useMotionValue(1), { stiffness: 420, damping: 26 })
+
+  const ringRef = useRef(null)
 
   useEffect(() => {
-    // Only activate on devices with a fine pointer (mouse), not touch
-    const isFinePointer = window.matchMedia('(pointer: fine) and (hover: hover)').matches
-    if (!isFinePointer) return
+    const fine = window.matchMedia('(pointer: fine) and (hover: hover)')
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (!fine.matches || still.matches) return
 
     setMounted(true)
 
+    let hovering = false
+    let pressing = false
+    const apply = () => {
+      ringScale.set(hovering ? 1.55 : pressing ? 0.82 : 1)
+      dotScale.set(pressing ? 0.5 : hovering ? 0 : 1)
+    }
+
     const onMove = (e) => {
-      dotX.set(e.clientX)
-      dotY.set(e.clientY)
-      ringX.set(e.clientX)
-      ringY.set(e.clientY)
+      dotX.set(e.clientX); dotY.set(e.clientY)
+      ringX.set(e.clientX); ringY.set(e.clientY)
     }
-
     const onOver = (e) => {
-      const t = e.target?.closest('a, button, [data-cursor], input, textarea, select, label, [role="button"]')
-      if (t) {
-        setIsPointer(true)
-        ringRef.current?.classList.add('hovered')
-      }
+      if (!e.target?.closest?.(INTERACTIVE)) return
+      hovering = true
+      ringRef.current?.classList.add('hovered')
+      apply()
     }
-
     const onOut = (e) => {
-      const t = e.target?.closest('a, button, [data-cursor], input, textarea, select, label, [role="button"]')
-      if (t) {
-        setIsPointer(false)
-        ringRef.current?.classList.remove('hovered')
-      }
+      if (!e.target?.closest?.(INTERACTIVE)) return
+      hovering = false
+      ringRef.current?.classList.remove('hovered')
+      apply()
     }
+    const onDown = () => { pressing = true; apply() }
+    const onUp = () => { pressing = false; apply() }
+    // The ring is fixed-position; if the pointer leaves the window it should go with it.
+    const onLeave = () => { dotX.set(-200); dotY.set(-200); ringX.set(-200); ringY.set(-200) }
 
-    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('mousedown', onDown)
+    window.addEventListener('mouseup', onUp)
     document.addEventListener('mouseover', onOver)
     document.addEventListener('mouseout', onOut)
+    document.documentElement.addEventListener('mouseleave', onLeave)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mousedown', onDown)
+      window.removeEventListener('mouseup', onUp)
       document.removeEventListener('mouseover', onOver)
       document.removeEventListener('mouseout', onOut)
+      document.documentElement.removeEventListener('mouseleave', onLeave)
     }
   }, [])
 
@@ -56,21 +76,21 @@ export default function Cursor() {
   return (
     <>
       <motion.div
+        className="cursor-dot"
         style={{
-          position: 'fixed', top: 0, left: 0,
-          width: 7, height: 7,
-          borderRadius: '50%',
-          background: 'var(--accent)',
-          translateX: '-50%', translateY: '-50%',
-          pointerEvents: 'none',
-          zIndex: 9999,
-          x: dotX, y: dotY,
+          width: DOT, height: DOT,
+          marginLeft: -DOT / 2, marginTop: -DOT / 2,
+          x: dotX, y: dotY, scale: dotScale,
         }}
       />
       <motion.div
         ref={ringRef}
         className="cursor-ring"
-        style={{ x: ringX, y: ringY }}
+        style={{
+          width: RING, height: RING,
+          marginLeft: -RING / 2, marginTop: -RING / 2,
+          x: ringX, y: ringY, scale: ringScale,
+        }}
       />
     </>
   )
