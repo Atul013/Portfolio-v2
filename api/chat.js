@@ -1,5 +1,8 @@
 const NVIDIA_API  = 'https://integrate.api.nvidia.com/v1/chat/completions'
-const MODEL       = 'moonshotai/kimi-k2.6'
+// NVIDIA NIM resolves models per account. kimi-k2.6 stopped being entitled to
+// this account and returned 404 on every call; this one is verified working
+// with both tool calls and image input, which the widget needs.
+const MODEL       = 'mistralai/mistral-medium-3.5-128b'
 const WEB3FORMS   = 'https://api.web3forms.com/submit'
 const FORMSPREE   = 'https://formspree.io/f/xnjrzlej'   // fallback
 
