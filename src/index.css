@@ -76,11 +76,6 @@
 }
 
 /* ── Light mode overrides for hardcoded-dark elements ── */
-[data-theme="light"] .hero__grid-lines {
-  background-image:
-    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
-}
 [data-theme="light"] .skills-wrap { background: var(--surface); }
 [data-theme="light"] .skill-cat { background: var(--bg); }
 /* project section: tone down neon lime in default (dark) mode */
@@ -626,19 +621,6 @@ section { padding: 120px 0; }
   background: radial-gradient(circle, rgba(var(--accent-rgb), 0.06), transparent 70%);
   bottom: 0; left: -100px;
 }
-.hero__grid-lines {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  mask-image: radial-gradient(circle 220px at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle 220px at var(--gx, 50%) var(--gy, 50%), black 0%, transparent 100%);
-  pointer-events: none;
-}
-.hero__grid-lines.active { opacity: 0.45; }
 .hero__inner {
   position: relative; z-index: var(--z-raised);
   width: 100%;
@@ -665,21 +647,6 @@ section { padding: 120px 0; }
   0%,100% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.25); }
   50% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb),0.08); }
 }
-/* Particle canvas accent color (needs a real hex, not a CSS var, for canvas fillStyle) */
-:root               { --accent-particle: #b5fd4f; }
-[data-theme="light"]{ --accent-particle: #5a9200; }
-
-/* The particle wordmark is the signature moment, so it renders at every size.
-   The canvas samples the same face at the same weight, so the silhouette is
-   identical to the CSS fallback; only the stride gets coarser on small screens.
-   The spacer carries role="img" + aria-label, so the name is still announced. */
-.hero__particle-wrap  { margin-bottom: 28px; }
-.hero__name-wrap--mob { display: none; }
-
-/* No-JS and canvas-less fallback: show real text instead of an empty gap. */
-.no-js .hero__particle-wrap  { display: none; }
-.no-js .hero__name-wrap--mob { display: block; }
-
 .hero__name-wrap { margin-bottom: 28px; }
 .hero__name {
   font-family: var(--font-display);
@@ -1401,7 +1368,6 @@ html, body { max-width: 100vw; overflow-x: hidden; }
 
   .hero__glow--1 { width: 260px; height: 260px; top: -60px; right: -40px; }
   .hero__glow--2 { width: 180px; height: 180px; }
-  .hero__grid-lines, .hero__grid-lines.active { opacity: 0 !important; }
 }
 
 /* ─── ABOUT ─── */

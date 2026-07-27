@@ -30,14 +30,17 @@ export default function CommandPalette({ theme, toggleTheme }) {
     if (el) el.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' })
   }, [still])
 
+  // Sections that can be absent at runtime (Activity hides itself when the
+  // GitHub API is unreachable) would otherwise leave a command that silently
+  // does nothing, so anything with a `hash` is dropped unless it's on the page.
   const commands = useMemo(() => [
-    { id: 'about',    group: 'Jump to', label: 'About',          hint: 'Who I am',              icon: ArrowRight, run: () => go('#about') },
-    { id: 'skills',   group: 'Jump to', label: 'The stack',      hint: 'Languages, AI, infra',  icon: ArrowRight, run: () => go('#skills') },
-    { id: 'activity', group: 'Jump to', label: 'Activity',       hint: 'Live GitHub graph',     icon: ArrowRight, run: () => go('#activity') },
-    { id: 'exp',      group: 'Jump to', label: 'Experience',     hint: 'Where I have worked',   icon: ArrowRight, run: () => go('#experience') },
-    { id: 'projects', group: 'Jump to', label: 'Selected work',  hint: 'Six projects',          icon: ArrowRight, run: () => go('#projects') },
-    { id: 'faq',      group: 'Jump to', label: 'Questions',      hint: 'Common questions',      icon: ArrowRight, run: () => go('#faq') },
-    { id: 'contact',  group: 'Jump to', label: 'Contact',        hint: 'Get in touch',          icon: ArrowRight, run: () => go('#contact') },
+    { id: 'about',    group: 'Jump to', label: 'About',          hint: 'Who I am',              icon: ArrowRight, hash: '#about' },
+    { id: 'skills',   group: 'Jump to', label: 'The stack',      hint: 'Languages, AI, infra',  icon: ArrowRight, hash: '#skills' },
+    { id: 'activity', group: 'Jump to', label: 'Activity',       hint: 'Live GitHub graph',     icon: ArrowRight, hash: '#activity' },
+    { id: 'exp',      group: 'Jump to', label: 'Experience',     hint: 'Where I have worked',   icon: ArrowRight, hash: '#experience' },
+    { id: 'projects', group: 'Jump to', label: 'Selected work',  hint: 'Six projects',          icon: ArrowRight, hash: '#projects' },
+    { id: 'faq',      group: 'Jump to', label: 'Questions',      hint: 'Common questions',      icon: ArrowRight, hash: '#faq' },
+    { id: 'contact',  group: 'Jump to', label: 'Contact',        hint: 'Get in touch',          icon: ArrowRight, hash: '#contact' },
 
     { id: 'resume',   group: 'Links', label: 'Resume',   hint: 'Opens in a new tab', icon: FileText, run: () => window.open(RESUME_URL, '_blank', 'noopener,noreferrer') },
     { id: 'github',   group: 'Links', label: 'GitHub',   hint: '@Atul013',           icon: Github,   run: () => window.open(personalInfo.github, '_blank', 'noopener,noreferrer') },
@@ -47,15 +50,17 @@ export default function CommandPalette({ theme, toggleTheme }) {
 
     { id: 'theme', group: 'Display', label: theme === 'dark' ? 'Switch to light' : 'Switch to dark',
       hint: 'Toggle theme', icon: theme === 'dark' ? Sun : Moon, run: toggleTheme },
-  ], [go, theme, toggleTheme])
+  ].map(c => (c.hash ? { ...c, run: () => go(c.hash) } : c)), [go, theme, toggleTheme])
 
   const results = useMemo(() => {
+    // Re-checked on every open, since a section can mount after first paint.
+    const present = commands.filter(c => !c.hash || document.querySelector(c.hash))
     const q = query.trim().toLowerCase()
-    if (!q) return commands
-    return commands.filter(c =>
+    if (!q) return present
+    return present.filter(c =>
       c.label.toLowerCase().includes(q) || c.hint.toLowerCase().includes(q)
     )
-  }, [commands, query])
+  }, [commands, query, open])
 
   // Keep the highlight in range as the result set shrinks.
   useEffect(() => { setActive(0) }, [query])

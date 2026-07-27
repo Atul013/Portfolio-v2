@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, ArrowDown, ExternalLink } from 'lucide-react'
 import { personalInfo } from '../data'
-import ParticleText from './ParticleText'
 import { Magnetic } from './motion-primitives'
 
 // Text line reveal: slides up from behind a clip
@@ -66,41 +65,19 @@ function ResumeLink() {
 
 export default function Hero() {
   const [roleIdx, setRoleIdx] = useState(0)
-  const gridRef = useRef()
 
   useEffect(() => {
     const t = setInterval(() => setRoleIdx(i => (i + 1) % personalInfo.roles.length), 2800)
     return () => clearInterval(t)
   }, [])
 
-  const onMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    if (gridRef.current) {
-      gridRef.current.style.setProperty('--gx', `${x}%`)
-      gridRef.current.style.setProperty('--gy', `${y}%`)
-      gridRef.current.classList.add('active')
-    }
-  }
-
-  const onMouseLeave = () => {
-    gridRef.current?.classList.remove('active')
-  }
-
   return (
-    <section id="hero" className="hero" onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
-      {/* Animated background */}
+    <section id="hero" className="hero">
+      {/* Static background wash. No cursor tracking and no looping animation:
+          both cost a repaint of a full-viewport blurred layer on every frame. */}
       <div className="hero__bg" aria-hidden="true">
-        <motion.div className="hero__glow hero__glow--1"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.12, 0.18, 0.12] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div className="hero__glow hero__glow--2"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.06, 0.1, 0.06] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        />
-        <div className="hero__grid-lines" ref={gridRef} />
+        <div className="hero__glow hero__glow--1" />
+        <div className="hero__glow hero__glow--2" />
       </div>
 
       <div className="container hero__inner">
@@ -115,23 +92,9 @@ export default function Hero() {
           Open to internships & research collabs
         </motion.div>
 
-        {/* Giant name — particle canvas on desktop */}
-        <motion.div
-          className="hero__particle-wrap"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-        >
-          <ParticleText
-            lines={['ATUL', 'BIJU.']}
-            color="#f0ece4"
-            accentLine={1}
-            accentColor="var(--accent-particle)"
-          />
-        </motion.div>
-
-        {/* Mobile fallback — regular text (hidden on desktop) */}
-        <div className="hero__name-wrap hero__name-wrap--mob">
+        {/* Giant name. Plain text at every size — it inherits --text/--accent,
+            so it stays legible in both themes. */}
+        <div className="hero__name-wrap">
           {['ATUL', 'BIJU.'].map((word, i) => (
             <div key={word} className="hero__name-line">
               <motion.span
