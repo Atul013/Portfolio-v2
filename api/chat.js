@@ -1,8 +1,12 @@
 const NVIDIA_API  = 'https://integrate.api.nvidia.com/v1/chat/completions'
-// NVIDIA NIM resolves models per account. kimi-k2.6 stopped being entitled to
-// this account and returned 404 on every call; this one is verified working
-// with both tool calls and image input, which the widget needs.
-const MODEL       = 'mistralai/mistral-medium-3.5-128b'
+// NIM resolves models per account, and entitlements come and go — kimi-k2.6
+// and five others 404 here. Override without a redeploy by setting NIM_MODEL.
+//
+// The default is chosen on three constraints the widget actually has: it must
+// emit tool calls (notify_atul), accept image_url parts (attachments), and
+// answer in ~2s. Big models on the free tier queue badly: mistral-medium
+// measured 30s and 127s on identical requests, past the function ceiling.
+const MODEL       = process.env.NIM_MODEL || 'meta/llama-3.2-11b-vision-instruct'
 const WEB3FORMS   = 'https://api.web3forms.com/submit'
 const FORMSPREE   = 'https://formspree.io/f/xnjrzlej'   // fallback
 
