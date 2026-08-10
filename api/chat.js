@@ -102,7 +102,18 @@ STEP 4 — After the tool executes, say something like:
    OR: "Sent! He might be busy with college stuff or at the gym rn, but within 48 hours max. If he's free, knowing him it'll be under 2 hours."
 
 IMPORTANT:
-- Never call notify_atul until you have the visitor's name AND contact info.
+- notify_atul sends Atul a real email. Treat it as a genuine interruption of a
+  real person's day, not a conversational flourish.
+- THREE conditions must ALL be true before you call it. If any one is missing,
+  do not call it:
+    1. The visitor asked to be put in touch, or said yes to your offer
+    2. They gave you their name
+    3. They gave you a contact you could actually reach them at
+- Never call it just because a question was off-topic, and never to "log" or
+  "record" a conversation. An off-topic question on its own is a deflection,
+  not a notification.
+- If you are unsure whether they want Atul contacted, ask. Do not call the tool
+  to find out.
 - If they only give a name, ask once more for contact: "And a way to reach you? Email or socials is fine."
 - Keep the banter light — this should feel like talking to Atul's slightly sarcastic but helpful AI, not a customer service bot.`
 
@@ -136,6 +147,42 @@ const TOOLS = [
     },
   },
 ]
+
+/* ─────────────────────────────────────────────────────────
+   NOTIFY GATING
+
+   The tool used to be offered on every single turn, so a small model would
+   reach for it during ordinary chat and fire an email for visitors who never
+   asked to be put in touch. Prompt wording alone doesn't hold, so the tool is
+   withheld from the payload unless the conversation has actually reached the
+   point of exchanging contact details — a model can't call a tool it can't see.
+───────────────────────────────────────────────────────── */
+
+// Visitor explicitly asking to reach Atul.
+const CONTACT_INTENT = /\b(ping|notify|contact|reach (?:out|him)|message him|tell (?:him|atul)|let (?:him|atul) know|email him|dm him|get in touch|hire|collab|opportunity|work together)\b/i
+
+// The assistant offered to pass something on, so a bare "yes" is consent.
+const OFFER_MADE = /(ping him|ping you|notify him|notify you|send him a note|shoot him a message|should i send|want me to ping|message him)/i
+
+// Flatten either a plain string or the multipart array used for images.
+const textOf = (content) =>
+  typeof content === 'string'
+    ? content
+    : Array.isArray(content)
+      ? content.filter(p => p?.type === 'text').map(p => p.text).join(' ')
+      : ''
+
+function notifyAllowed(messages) {
+  const lastUser = [...messages].reverse().find(m => m.role === 'user')
+  if (CONTACT_INTENT.test(textOf(lastUser?.content))) return true
+  // Otherwise only if there's an outstanding offer they could be agreeing to.
+  return messages.some(m => m.role === 'assistant' && OFFER_MADE.test(textOf(m.content)))
+}
+
+// Last line of defence: the model can still hallucinate arguments, so refuse to
+// send unless the contact string is actually something Atul could reply to.
+const looksReachable = (s = '') =>
+  /@|https?:\/\/|\+?\d[\d\s-]{7,}|instagram|linkedin|twitter|x\.com|telegram|github/i.test(s)
 
 /* ─────────────────────────────────────────────────────────
    HELPERS
@@ -244,7 +291,7 @@ export default async function handler(req, res) {
 
   try {
     // ── First LLM call (tools enabled) ──
-    const data   = await callLLM(messages, true, apiKey)
+    const data   = await callLLM(messages, notifyAllowed(messages), apiKey)
     const choice = data.choices?.[0]
     const msg    = choice?.message
 
@@ -255,17 +302,24 @@ export default async function handler(req, res) {
       let args = {}
       try { args = JSON.parse(call.function.arguments) } catch {}
 
-      // Execute the tool server-side
+      // Execute the tool server-side, but only for a call that carries a real
+      // name and a contact string worth replying to. A refusal here is fed
+      // back as success:false, so the model asks for the details instead of
+      // telling the visitor a message was sent that never was.
       let notifyOk = true
-      try {
-        await sendNotification(
-          args.visitor_name  ?? 'Someone',
-          args.contact_info  ?? '(no contact given)',
-          args.question      ?? '(unknown)',
-        )
-      } catch (e) {
+      const name    = (args.visitor_name ?? '').trim()
+      const contact = (args.contact_info ?? '').trim()
+
+      if (!name || !looksReachable(contact)) {
         notifyOk = false
-        console.error('Notification send failed:', e.message)
+        console.warn('notify_atul refused — insufficient args:', JSON.stringify(args))
+      } else {
+        try {
+          await sendNotification(name, contact, args.question ?? '(unknown)')
+        } catch (e) {
+          notifyOk = false
+          console.error('Notification send failed:', e.message)
+        }
       }
 
       // Feed tool result back for a natural follow-up response
