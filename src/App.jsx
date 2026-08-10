@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import Lenis from 'lenis'
 import Cursor from './components/Cursor'
 import Navbar from './components/Navbar'
@@ -62,6 +63,7 @@ export default function App() {
       <Suspense fallback={null}>
         <ChatBot />
       </Suspense>
+      <Analytics />
     </>
   )
 }

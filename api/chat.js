@@ -78,11 +78,16 @@ TONE & BEHAVIOUR:
 ═══════════════════════════════════════════════════════════
 SCOPE — CRITICAL
 ═══════════════════════════════════════════════════════════
-You ONLY discuss topics connected to Atul — his work, projects, skills, experience, background, or anything in his domain (AI, ML, security, Python, Go, Kerala, hackathons, system design, edge AI, etc.).
+DEFAULT: ANSWER NORMALLY. Deflection is the rare exception, not the first instinct — when in doubt, just answer.
 
-Be GENEROUS with what counts as related: if someone asks a general AI/coding/security/tech question, answer it — it's in Atul's world. Same for anything about his hobbies, life, opinions on tech, etc.
+ALWAYS answer normally, no exceptions, these are NEVER off-topic:
+- Greetings, small talk, "hey", "hi", "what's up", how-are-you
+- Thanks, goodbyes, casual banter
+- "Who are you", "what can you do", questions about atul_ai itself
+- Anything about Atul — his work, projects, skills, experience, background, hobbies, life, opinions
+- General AI/coding/security/tech questions — these are in Atul's world too (AI, ML, security, Python, Go, Kerala, hackathons, system design, edge AI, etc.)
 
-ONLY hard-redirect truly off-topic stuff — random trivia, anime plots, recipes, celebrity gossip, sports scores, homework help on topics totally outside Atul's world, etc.
+Only deflect when a question has genuinely NO connection to Atul's world at all — random trivia, anime plots, recipes, celebrity gossip, sports scores, homework help on topics totally unrelated to tech. If you're unsure whether something counts, it counts — answer it, don't deflect.
 
 OFF-TOPIC FLOW — follow this exact sequence:
 
@@ -183,6 +188,87 @@ function notifyAllowed(messages) {
 // send unless the contact string is actually something Atul could reply to.
 const looksReachable = (s = '') =>
   /@|https?:\/\/|\+?\d[\d\s-]{7,}|instagram|linkedin|twitter|x\.com|telegram|github/i.test(s)
+
+/* ─────────────────────────────────────────────────────────
+   REQUEST GUARDS
+
+   The endpoint is public and unauthenticated, so everything the client sends
+   is hostile until proven otherwise: a spoofed `system` role overrides the
+   persona, and an unbounded payload or request rate runs up the NIM bill.
+───────────────────────────────────────────────────────── */
+const ALLOWED_ROLES  = new Set(['user', 'assistant'])
+const MAX_CHARS       = 12000
+const MAX_MESSAGES    = 30
+
+// Only role and content survive — a client can't smuggle a system/tool role,
+// and any other fields (e.g. a forged tool_call_id) never reach the payload.
+function sanitiseMessages(messages) {
+  return messages
+    .filter(m => m && ALLOWED_ROLES.has(m.role))
+    .map(m => ({ role: m.role, content: m.content }))
+}
+
+// Text-only budget: image data URIs are large by nature and already bounded
+// by the multipart shape, so they'd swamp a byte-count without being the
+// abuse vector the cap targets.
+function totalChars(messages) {
+  return messages.reduce((sum, m) => sum + textOf(m.content).length, 0)
+}
+
+function validateSize(messages) {
+  if (messages.length > MAX_MESSAGES) return 'Too many messages'
+  if (totalChars(messages) > MAX_CHARS) return 'Request too large'
+  return null
+}
+
+// Per-instance only — a warm serverless container shares this Map across
+// requests it handles, but a cold start or a different instance gets a fresh
+// one, so this is a speed bump, not a hard global limit.
+const RATE_LIMIT_WINDOW_MS = 60_000
+const RATE_LIMIT_MAX       = 12
+const rateLimitStore = new Map()
+
+function checkRateLimit(ip, now = Date.now()) {
+  // Prune on every touch so the Map can't grow unbounded across the
+  // instance's lifetime.
+  for (const [key, entry] of rateLimitStore) {
+    if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) rateLimitStore.delete(key)
+  }
+
+  const entry = rateLimitStore.get(ip)
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(ip, { windowStart: now, count: 1 })
+    return { allowed: true }
+  }
+
+  entry.count += 1
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfter = Math.ceil((entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000)
+    return { allowed: false, retryAfter }
+  }
+  return { allowed: true }
+}
+
+function clientIp(req) {
+  const header = req.headers?.['x-forwarded-for']
+  if (!header) return 'unknown'
+  const first = Array.isArray(header) ? header[0] : header
+  return first.split(',')[0].trim()
+}
+
+// Named exports alongside the default handler, purely so the guards above
+// can be unit-tested as pure functions — Vercel only ever imports the default.
+export {
+  sanitiseMessages,
+  totalChars,
+  validateSize,
+  checkRateLimit,
+  clientIp,
+  MAX_CHARS,
+  MAX_MESSAGES,
+  RATE_LIMIT_WINDOW_MS,
+  RATE_LIMIT_MAX,
+}
 
 /* ─────────────────────────────────────────────────────────
    HELPERS
@@ -289,9 +375,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array required' })
   }
 
+  const rate = checkRateLimit(clientIp(req))
+  if (!rate.allowed) {
+    res.setHeader('Retry-After', String(rate.retryAfter))
+    return res.status(429).json({ error: 'Too many requests' })
+  }
+
+  const clean = sanitiseMessages(messages)
+  const sizeError = validateSize(clean)
+  if (sizeError) return res.status(413).json({ error: sizeError })
+
   try {
     // ── First LLM call (tools enabled) ──
-    const data   = await callLLM(messages, notifyAllowed(messages), apiKey)
+    const data   = await callLLM(clean, notifyAllowed(clean), apiKey)
     const choice = data.choices?.[0]
     const msg    = choice?.message
 
@@ -324,7 +420,7 @@ export default async function handler(req, res) {
 
       // Feed tool result back for a natural follow-up response
       const withResult = [
-        ...messages,
+        ...clean,
         msg,   // assistant message containing the tool_calls
         {
           role:         'tool',

@@ -235,7 +235,13 @@ export default function ChatBot() {
       : text
 
     const userMsg = { role: 'user', content: userContent, _img: pendingImg }
-    const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }))
+    // Trim to the most recent turns before sending — the server caps at
+    // MAX_MESSAGES=30 and 413s past that, and an ever-growing history would
+    // otherwise wedge every retry after the cap is first hit (see 413 handling
+    // below). 24 leaves headroom under the server limit; it does not guarantee
+    // staying under the server's MAX_CHARS=12000 if messages run long, which
+    // the 413 branch below covers honestly rather than silently.
+    const history = [...messages, userMsg].slice(-24).map(({ role, content }) => ({ role, content }))
 
     setMessages(prev => [...prev, userMsg])
     setInput('')
@@ -248,6 +254,13 @@ export default function ChatBot() {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ messages: history }),
       })
+      if (res.status === 413) {
+        setMessages(prev => [...prev, {
+          role:    'assistant',
+          content: "This conversation's gotten long enough that I can't keep up — mind starting a fresh chat?",
+        }])
+        return
+      }
       if (!res.ok) throw new Error('API error')
       const { reply } = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
@@ -298,10 +311,11 @@ export default function ChatBot() {
 
           <div ref={wrapRef} className="chatbot-img-wrap chatbot-glitch-wrap">
             <motion.img
-              src="/robot-bg.png"
+              src="/robot-bg.webp"
               alt="Atul AI"
               className="chatbot-img"
               draggable={false}
+              decoding="async"
               style={{ x: faceX, y: faceY, width: 118, height: 118, margin: -6 }}
             />
           </div>
@@ -361,7 +375,7 @@ export default function ChatBot() {
             {/* ── Header ── */}
             <div className="chatbot-panel__header">
               <div className="chatbot-panel__avatar">
-                <img src="/robot-bg.png" alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
+                <img src="/robot-bg.webp" alt="" loading="lazy" decoding="async" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <p className="chatbot-panel__name">
@@ -379,6 +393,7 @@ export default function ChatBot() {
                 className="chatbot-panel__icon-btn"
                 onClick={() => setExpanded(e => !e)}
                 title={expanded ? 'Collapse' : 'Expand'}
+                aria-label={expanded ? 'Collapse' : 'Expand'}
               >
                 {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               </button>
@@ -429,6 +444,7 @@ export default function ChatBot() {
                   <button
                     className="chatbot-img-preview__remove"
                     onClick={() => setPendingImg(null)}
+                    aria-label="Remove attached image"
                   >
                     <X size={10} />
                   </button>
@@ -464,6 +480,7 @@ export default function ChatBot() {
                 className="chatbot-panel__icon-btn"
                 onClick={() => fileRef.current?.click()}
                 title="Attach image"
+                aria-label="Attach image"
                 disabled={loading}
                 style={{ marginRight: 4 }}
               >
@@ -474,6 +491,7 @@ export default function ChatBot() {
                 className="chatbot-panel__send"
                 onClick={handleSend}
                 disabled={loading || (!input.trim() && !pendingImg)}
+                aria-label="Send message"
               >
                 ↑
               </button>

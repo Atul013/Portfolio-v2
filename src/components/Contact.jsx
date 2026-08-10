@@ -55,7 +55,7 @@ function CopyBtn() {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <button className="contact-copy contact-copy--icon" onClick={copy} title={copied ? 'Copied!' : 'Copy email'}>
+    <button className="contact-copy contact-copy--icon" onClick={copy} title={copied ? 'Copied!' : 'Copy email'} aria-label={copied ? 'Copied!' : 'Copy email address'}>
       {copied ? <Check size={14} /> : <Copy size={14} />}
     </button>
   )
@@ -102,8 +102,9 @@ function ContactForm() {
     <form className="contact-form" onSubmit={handleSubmit} noValidate>
       <div className="cf-row">
         <div className="cf-field">
-          <label className="cf-label">Your name</label>
+          <label className="cf-label" htmlFor="cf-name">Your name</label>
           <input
+            id="cf-name"
             className="cf-input"
             type="text"
             placeholder="Roronoa Zoro"
@@ -114,8 +115,9 @@ function ContactForm() {
           />
         </div>
         <div className="cf-field">
-          <label className="cf-label">Email address</label>
+          <label className="cf-label" htmlFor="cf-email">Email address</label>
           <input
+            id="cf-email"
             className="cf-input"
             type="email"
             placeholder="zoro@strawhat.crew"
@@ -127,8 +129,9 @@ function ContactForm() {
         </div>
       </div>
       <div className="cf-field">
-        <label className="cf-label">Message</label>
+        <label className="cf-label" htmlFor="cf-message">Message</label>
         <textarea
+          id="cf-message"
           className="cf-input cf-textarea"
           placeholder="Hey Atul — came across your work and I have a problem worth solving. Think you're up for it?"
           rows={5}
