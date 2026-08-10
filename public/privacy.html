@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Privacy | Atul Biju</title>
+  <meta name="description" content="What data icarus13.in collects, what it's used for, and who to contact about it." />
+  <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <style>
+    /* Tokens mirror index.css so this page can't drift from the site. */
+    :root {
+      --bg: #f4f1ea; --text: #0f0f0f; --text-2: #666; --accent: #5a9200;
+      --border: rgba(0,0,0,0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0a0a; --text: #f0ece4; --text-2: #888; --accent: #b5fd4f;
+        --border: rgba(255,255,255,0.12);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Archivo', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { max-width: 62ch; margin: 0 auto; padding: 48px 0 96px; }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 900;
+      letter-spacing: -0.03em; line-height: 0.95; margin-bottom: 8px;
+    }
+    .updated {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px; color: var(--text-2); margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em;
+      margin: 40px 0 12px;
+    }
+    p, li {
+      font-size: 0.98rem; color: var(--text-2); line-height: 1.7;
+    }
+    p { margin-bottom: 14px; }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .back {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 48px; min-height: 48px; padding: 0 24px;
+      border-radius: 999px; border: 1px solid var(--border);
+      font-size: 14px; font-weight: 600; text-decoration: none; color: var(--text);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .back:hover { transform: translateY(-2px); }
+    @media (prefers-reduced-motion: reduce) {
+      .back, .back:hover { transition: none; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Privacy</p>
+    <h1>Privacy<span style="color: var(--accent)">.</span></h1>
+    <p class="updated">Last updated 27 July 2026</p>
+
+    <p>
+      This is a one-person portfolio site, not a company. This page explains,
+      plainly, what data it actually collects and where it goes.
+    </p>
+
+    <h2>Contact form</h2>
+    <p>
+      The form in the Contact section posts your name, email, and message
+      directly to <a href="https://formspree.io" target="_blank" rel="noopener noreferrer">Formspree</a>,
+      which forwards it to me by email. Nothing from the form is stored on
+      this site or in any database I run; Formspree is the only place it lands.
+    </p>
+
+    <h2>The chatbot</h2>
+    <p>
+      Messages you send the chatbot are forwarded to <a href="https://www.nvidia.com/en-us/ai/" target="_blank" rel="noopener noreferrer">NVIDIA NIM</a>
+      for inference, so the model can generate a reply. If you attach an
+      image, it's sent the same way.
+    </p>
+    <p>
+      An email notification is sent (via Web3Forms, with Formspree as a
+      backup if that fails) only when you explicitly ask to be put in touch
+      with me and give the bot a name and a way to reach you. If you just chat
+      without asking to connect, no notification is sent.
+    </p>
+    <p>
+      Chat messages live only in the page's memory for that browser tab.
+      Nothing is written to local storage, cookies, or any server-side
+      database here. Refresh the page or close the tab and the conversation
+      is gone.
+    </p>
+
+    <h2>GitHub activity</h2>
+    <p>
+      The contribution graph is fetched through a server-side proxy that
+      calls GitHub's API on my behalf. It involves no data about you at all;
+      it only reads my own public GitHub activity. Your browser caches the
+      response locally for a few hours so the graph loads instantly on repeat
+      visits.
+    </p>
+
+    <h2>Analytics</h2>
+    <p>
+      This site uses <a href="https://vercel.com/analytics" target="_blank" rel="noopener noreferrer">Vercel Analytics</a>
+      to see anonymous, aggregate page-view counts. It doesn't use cookies
+      and doesn't track you individually across sites.
+    </p>
+
+    <h2>Hosting &amp; server logs</h2>
+    <p>
+      This site is hosted on Vercel, which, like essentially any host,
+      keeps standard server logs (including IP addresses) for operating the
+      infrastructure. I don't access these for anything beyond that.
+    </p>
+
+    <h2>Questions or data requests</h2>
+    <p>
+      If you want to know what's been sent through the form or chatbot, or
+      have any other question about this page, email
+      <a href="mailto:atulbiju13@gmail.com">atulbiju13@gmail.com</a>.
+    </p>
+
+    <a class="back" href="/">Back to the portfolio</a>
+  </main>
+</body>
+</html>

@@ -18,6 +18,7 @@ export default function Footer() {
             {navLinks.map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="footer-nav-link">{l}</a>
             ))}
+            <a href="/privacy.html" className="footer-nav-link">Privacy</a>
           </nav>
           <div className="footer-socials">
             <a href={personalInfo.github} target="_blank" rel="noopener noreferrer" className="footer-social"><Github size={16} /></a>

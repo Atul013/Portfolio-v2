@@ -10,6 +10,7 @@
     "og": "node scripts/og.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^11.0.0",
     "lenis": "^1.1.0",
     "lucide-react": "^0.300.0",
