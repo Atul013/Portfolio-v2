@@ -381,6 +381,7 @@ export default function ChatBot() {
                 className="chatbot-panel__icon-btn"
                 onClick={() => setExpanded(e => !e)}
                 title={expanded ? 'Collapse' : 'Expand'}
+                aria-label={expanded ? 'Collapse' : 'Expand'}
               >
                 {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               </button>
@@ -431,6 +432,7 @@ export default function ChatBot() {
                   <button
                     className="chatbot-img-preview__remove"
                     onClick={() => setPendingImg(null)}
+                    aria-label="Remove attached image"
                   >
                     <X size={10} />
                   </button>
@@ -466,6 +468,7 @@ export default function ChatBot() {
                 className="chatbot-panel__icon-btn"
                 onClick={() => fileRef.current?.click()}
                 title="Attach image"
+                aria-label="Attach image"
                 disabled={loading}
                 style={{ marginRight: 4 }}
               >
@@ -476,6 +479,7 @@ export default function ChatBot() {
                 className="chatbot-panel__send"
                 onClick={handleSend}
                 disabled={loading || (!input.trim() && !pendingImg)}
+                aria-label="Send message"
               >
                 ↑
               </button>
