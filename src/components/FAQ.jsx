@@ -10,11 +10,27 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] },
 })
 
+/* Built from the same `faq` array the accordion renders, so the markup Google
+   reads and the copy a visitor sees can never disagree. */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(item => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+}
+
 export default function FAQ() {
   const [open, setOpen] = useState(0)
 
   return (
     <section id="faq" style={{ background: 'var(--bg-2)' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="container">
         <div className="faq-layout">
 

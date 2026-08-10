@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# JSON endpoints, nothing crawlable
+Disallow: /api/
+
+# AI search engines cite pages they can read, so these stay allowed
+# deliberately — blocking them removes the site from those citations.
+# Listed explicitly so the choice is visible rather than accidental.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+Sitemap: https://icarus13.in/sitemap.xml

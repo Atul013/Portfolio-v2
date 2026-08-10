@@ -92,7 +92,7 @@ function ContactForm() {
       <div className="cf-success">
         <div className="cf-success-icon">✓</div>
         <p className="cf-success-title">Message sent!</p>
-        <p className="cf-success-sub">I'll get back to you soon.</p>
+        <p className="cf-success-sub">I reply to every message within 24 hours.</p>
         <button className="cf-retry" onClick={() => setStatus('idle')}>Send another</button>
       </div>
     )
@@ -144,6 +144,9 @@ function ContactForm() {
       <button className="cf-submit btn-lime" type="submit" disabled={status === 'sending'}>
         {status === 'sending' ? 'Sending…' : <><Send size={15} /> Send message</>}
       </button>
+      {/* Stated before sending, not after: the point is to remove the "will
+          this go into a void?" hesitation while they're deciding. */}
+      <p className="cf-promise">Every message gets a reply within 24 hours.</p>
     </form>
   )
 }

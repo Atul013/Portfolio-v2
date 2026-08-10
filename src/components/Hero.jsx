@@ -93,8 +93,10 @@ export default function Hero() {
         </motion.div>
 
         {/* Giant name. Plain text at every size — it inherits --text/--accent,
-            so it stays legible in both themes. */}
-        <div className="hero__name-wrap">
+            so it stays legible in both themes. This is the page's only h1:
+            the name is the subject of the page, and search + screen readers
+            both need one to anchor the document outline. */}
+        <h1 className="hero__name-wrap">
           {['ATUL', 'BIJU.'].map((word, i) => (
             <div key={word} className="hero__name-line">
               <motion.span
@@ -108,7 +110,7 @@ export default function Hero() {
               </motion.span>
             </div>
           ))}
-        </div>
+        </h1>
 
         {/* Cycling role */}
         <div className="hero__role-row">

@@ -15,6 +15,9 @@ const links = [
 
 export default function Navbar({ theme, toggleTheme }) {
   const scrolled = useScrolledPast(50)
+  // The hero already carries its own CTAs, so the sticky one only earns its
+  // place once they've scrolled past it.
+  const pastHero = useScrolledPast(600)
   const [open,           setOpen]           = useState(false)
   const [activeSection,  setActiveSection]  = useState('')
 
@@ -139,6 +142,25 @@ export default function Navbar({ theme, toggleTheme }) {
               </a>
             </div>
           </motion.nav>
+        )}
+      </AnimatePresence>
+
+      {/* Sticky mobile CTA. The desktop "Hire me" is display:none under 860px,
+          so without this a phone visitor has no call to action once the hero
+          scrolls away. Anchored bottom-left — the chat launcher owns the
+          bottom-right corner. Hidden while the mobile menu is open. */}
+      <AnimatePresence>
+        {pastHero && !open && (
+          <motion.a
+            href="#contact"
+            className="sticky-cta"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Hire me
+          </motion.a>
         )}
       </AnimatePresence>
     </>

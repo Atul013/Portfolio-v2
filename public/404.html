@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>404 — Page not found | Atul Biju</title>
+  <meta name="description" content="That page does not exist on icarus13.in. Head back to the portfolio." />
+  <!-- A 404 must never be indexed, or Google treats it as a real page. -->
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <style>
+    /* Tokens mirror index.css so this page can't drift from the site. */
+    :root {
+      --bg: #f4f1ea; --text: #0f0f0f; --text-2: #666; --accent: #5a9200;
+      --border: rgba(0,0,0,0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0a0a; --text: #f0ece4; --text-2: #888; --accent: #b5fd4f;
+        --border: rgba(255,255,255,0.12);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Archivo', system-ui, sans-serif;
+      min-height: 100vh; display: grid; place-items: center;
+      padding: 32px; text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(4rem, 18vw, 11rem); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 0.9; margin-bottom: 16px;
+    }
+    h1 span { color: var(--accent); }
+    p {
+      font-size: clamp(0.95rem, 2.5vw, 1.1rem); color: var(--text-2);
+      max-width: 46ch; margin: 0 auto 36px; line-height: 1.6;
+    }
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    a {
+      display: inline-flex; align-items: center; gap: 8px;
+      /* 48px min target: thumb-sized on mobile */
+      min-height: 48px; padding: 0 24px; border-radius: 999px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    a:hover { transform: translateY(-2px); }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .primary { background: var(--accent); color: var(--bg); }
+    .ghost { border: 1px solid var(--border); color: var(--text); }
+    @media (prefers-reduced-motion: reduce) {
+      a, a:hover { transition: none; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="code">Error 404</p>
+    <h1>Lost<span>.</span></h1>
+    <p>
+      This page doesn't exist — wrong link, old bookmark, or a typo.
+      Everything worth seeing lives on the home page.
+    </p>
+    <div class="actions">
+      <a class="primary" href="/">Back to the portfolio</a>
+      <a class="ghost" href="/#contact">Get in touch</a>
+    </div>
+  </main>
+</body>
+</html>
