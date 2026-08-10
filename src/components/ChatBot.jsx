@@ -298,10 +298,12 @@ export default function ChatBot() {
 
           <div ref={wrapRef} className="chatbot-img-wrap chatbot-glitch-wrap">
             <motion.img
-              src="/robot-bg.png"
+              src="/robot-bg.webp"
               alt="Atul AI"
               className="chatbot-img"
               draggable={false}
+              loading="lazy"
+              decoding="async"
               style={{ x: faceX, y: faceY, width: 118, height: 118, margin: -6 }}
             />
           </div>
@@ -361,7 +363,7 @@ export default function ChatBot() {
             {/* ── Header ── */}
             <div className="chatbot-panel__header">
               <div className="chatbot-panel__avatar">
-                <img src="/robot-bg.png" alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
+                <img src="/robot-bg.webp" alt="" loading="lazy" decoding="async" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
               </div>
               <div style={{ flex: 1 }}>
                 <p className="chatbot-panel__name">
