@@ -10,7 +10,7 @@
       ]
     },
     {
-      "source": "/(favicon\\.svg|og\\.png|robot-bg\\.webp|.*\\.ico)$",
+      "source": "/(favicon\\.svg|og\\.png|robot-bg\\.webp|.*\\.ico)",
       "headers": [
         {
           "key": "Cache-Control",

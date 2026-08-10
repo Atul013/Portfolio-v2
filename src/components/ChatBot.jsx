@@ -235,7 +235,13 @@ export default function ChatBot() {
       : text
 
     const userMsg = { role: 'user', content: userContent, _img: pendingImg }
-    const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }))
+    // Trim to the most recent turns before sending — the server caps at
+    // MAX_MESSAGES=30 and 413s past that, and an ever-growing history would
+    // otherwise wedge every retry after the cap is first hit (see 413 handling
+    // below). 24 leaves headroom under the server limit; it does not guarantee
+    // staying under the server's MAX_CHARS=12000 if messages run long, which
+    // the 413 branch below covers honestly rather than silently.
+    const history = [...messages, userMsg].slice(-24).map(({ role, content }) => ({ role, content }))
 
     setMessages(prev => [...prev, userMsg])
     setInput('')
@@ -248,6 +254,13 @@ export default function ChatBot() {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ messages: history }),
       })
+      if (res.status === 413) {
+        setMessages(prev => [...prev, {
+          role:    'assistant',
+          content: "This conversation's gotten long enough that I can't keep up — mind starting a fresh chat?",
+        }])
+        return
+      }
       if (!res.ok) throw new Error('API error')
       const { reply } = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
@@ -302,7 +315,6 @@ export default function ChatBot() {
               alt="Atul AI"
               className="chatbot-img"
               draggable={false}
-              loading="lazy"
               decoding="async"
               style={{ x: faceX, y: faceY, width: 118, height: 118, margin: -6 }}
             />
