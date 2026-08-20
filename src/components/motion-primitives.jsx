@@ -194,3 +194,121 @@ export function Scramble({ text, className = '', speed = 34, as: Tag = 'span' })
     </Tag>
   )
 }
+
+/**
+ * Per-letter weight response to cursor proximity.
+ *
+ * Letters near the pointer interpolate from `from` to `to` on the font's
+ * `wght` axis, falling off with distance. Requires a variable font — Archivo
+ * is loaded across `wght@100..900` for exactly this.
+ *
+ * The whole loop runs on refs and writes styles directly to the letter nodes:
+ * a pointer sweep across the name costs one style write per letter per frame,
+ * never a React render. The rAF loop is only mounted on fine pointers with
+ * motion allowed, so touch devices and reduced-motion users pay nothing.
+ *
+ * `label` is rendered once visibly (split, aria-hidden) and once flat for
+ * screen readers, so the split never reaches the accessibility tree.
+ */
+export function VariableProximity({
+  label,
+  from = 400,
+  to = 900,
+  radius = 160,
+  falloff = 'gaussian',
+  className = '',
+  style,
+  ...rest
+}) {
+  const containerRef = useRef(null)
+  const letterRefs = useRef([])
+  const still = useStillness()
+
+  const [fine, setFine] = useState(false)
+  useEffect(() => {
+    setFine(window.matchMedia('(pointer: fine) and (hover: hover)').matches)
+  }, [])
+
+  const active = fine && !still
+
+  useEffect(() => {
+    if (!active) return
+
+    // Pointer position is tracked in a ref and read by the loop, so moving the
+    // mouse never schedules a render on its own.
+    const pointer = { x: 0, y: 0, seen: false }
+    const onMove = (e) => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.seen = true }
+    window.addEventListener('pointermove', onMove, { passive: true })
+
+    const weightAt = (dist) => {
+      const norm = Math.min(Math.max(1 - dist / radius, 0), 1)
+      if (falloff === 'exponential') return norm ** 2
+      if (falloff === 'gaussian') return Math.exp(-((dist / (radius / 2)) ** 2) / 2)
+      return norm
+    }
+
+    let frameId
+    let last = { x: null, y: null }
+
+    const loop = () => {
+      frameId = requestAnimationFrame(loop)
+      if (!pointer.seen) return
+      // Skip the whole pass when the pointer has not moved since last frame.
+      if (last.x === pointer.x && last.y === pointer.y) return
+      last = { x: pointer.x, y: pointer.y }
+
+      for (const el of letterRefs.current) {
+        if (!el) continue
+        const r = el.getBoundingClientRect()
+        // Fully offscreen letters cannot be near the cursor; skip the math.
+        if (r.bottom < 0 || r.top > window.innerHeight) continue
+
+        const dx = pointer.x - (r.left + r.width / 2)
+        const dy = pointer.y - (r.top + r.height / 2)
+        const dist = Math.hypot(dx, dy)
+
+        const w = dist >= radius ? from : from + (to - from) * weightAt(dist)
+        el.style.fontVariationSettings = `'wght' ${Math.round(w)}`
+      }
+    }
+    frameId = requestAnimationFrame(loop)
+
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      cancelAnimationFrame(frameId)
+      // Leave the letters at the resting weight rather than mid-interpolation.
+      for (const el of letterRefs.current) {
+        if (el) el.style.fontVariationSettings = `'wght' ${from}`
+      }
+    }
+  }, [active, from, to, radius, falloff])
+
+  // Without the effect running there is nothing to split: render flat text so
+  // the markup stays minimal and the font keeps its CSS-declared weight.
+  if (!active) {
+    return <span ref={containerRef} className={className} style={style} {...rest}>{label}</span>
+  }
+
+  letterRefs.current = []
+
+  return (
+    <span ref={containerRef} className={className} style={style} {...rest}>
+      <span aria-hidden="true">
+        {label.split('').map((ch, i) => (
+          <span
+            key={i}
+            ref={(el) => { letterRefs.current[i] = el }}
+            style={{
+              display: 'inline-block',
+              whiteSpace: 'pre',
+              fontVariationSettings: `'wght' ${from}`,
+            }}
+          >
+            {ch}
+          </span>
+        ))}
+      </span>
+      <span className="sr-only">{label}</span>
+    </span>
+  )
+}

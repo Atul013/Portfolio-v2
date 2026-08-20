@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Mail, MapPin, ArrowDown, ExternalLink } from 'lucide-react'
 import { personalInfo } from '../data'
-import { Magnetic } from './motion-primitives'
+import { Magnetic, VariableProximity } from './motion-primitives'
 
 // Text line reveal: slides up from behind a clip
 function Reveal({ children, delay = 0, className = '' }) {
@@ -106,7 +106,9 @@ export default function Hero() {
                 transition={{ duration: 1.1, delay: 0.3 + i * 0.16, ease: [0.16, 1, 0.3, 1] }}
                 style={{ display: 'block' }}
               >
-                {word}
+                {/* Letters thicken toward the cursor on Archivo's wght axis.
+                    Falls back to flat text on touch and under reduced motion. */}
+                <VariableProximity label={word} from={700} to={900} radius={180} />
               </motion.span>
             </div>
           ))}
