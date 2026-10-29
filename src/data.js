@@ -172,6 +172,7 @@ export const projects = [
       "Explicit Early Preview limits; no Electron, Python, or universal VS Code extension host",
     ],
     link: "https://github.com/Atul013/forge-room-ide/pull/1",
+    linkLabel: "View verified preview PR",
     github: "https://github.com/Atul013/forge-room-ide",
     award: false,
     status: "early-preview",
