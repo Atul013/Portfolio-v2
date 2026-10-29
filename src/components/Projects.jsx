@@ -30,6 +30,7 @@ const PROJ_META = {
   'agentic-rag':  { tag: 'Built at Torcue Digital',       visual: 'rag'         },
   'edge-slm':     { tag: 'Distillation · ONNX inference', visual: 'edgepy'      },
   'bob':          { tag: 'In development · local-first',  visual: 'bob'         },
+  'forge-room':  { tag: 'Native Rust · Windows preview', visual: 'forge'       },
   'pazham':       { tag: 'CV · built with Amal Babu',     visual: 'pazham'      },
 }
 
@@ -212,6 +213,34 @@ function ProjectVisual({ kind }) {
     </svg>
   )
 
+  if (kind === 'forge') return (
+    <svg viewBox="0 0 360 300" fill="none" style={{ width: '100%', height: '100%', maxWidth: 460 }}>
+      <defs>
+        <linearGradient id="forgePanel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" style={{ stopColor: 'var(--accent)', stopOpacity: 0.16 }} />
+          <stop offset="100%" style={{ stopColor: 'var(--accent)', stopOpacity: 0.03 }} />
+        </linearGradient>
+      </defs>
+      <rect x="32" y="42" width="296" height="216" rx="14" style={{ fill: 'var(--bg-2)', stroke: 'var(--border-2)' }} />
+      <rect x="48" y="60" width="76" height="180" rx="7" style={{ fill: 'var(--surface)', stroke: 'var(--border)' }} />
+      <rect x="140" y="60" width="172" height="180" rx="7" fill="url(#forgePanel)" style={{ stroke: 'var(--accent)' }} strokeOpacity="0.35" />
+      <circle cx="65" cy="80" r="5" style={{ fill: 'var(--accent)' }} />
+      <text x="78" y="84" style={{ fill: 'var(--text)' }} fontFamily="monospace" fontSize="8" letterSpacing="1.4">ROOM 01</text>
+      {['TASKS', 'EVIDENCE', 'RECOVERY'].map((label, i) => (
+        <g key={label}>
+          <rect x="59" y={106 + i * 38} width="54" height="24" rx="4" style={{ fill: 'var(--bg-2)', stroke: 'var(--border-2)' }} />
+          <text x="86" y={121 + i * 38} textAnchor="middle" style={{ fill: i === 0 ? 'var(--accent)' : 'var(--text-3)' }} fontFamily="monospace" fontSize="6.5" letterSpacing="0.8">{label}</text>
+        </g>
+      ))}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <rect key={i} x="156" y={82 + i * 22} width={104 - i * 7} height="4" rx="2" style={{ fill: i === 2 ? 'var(--accent)' : 'var(--border-2)' }} opacity={i === 2 ? 0.8 : 0.7} />
+      ))}
+      <rect x="156" y="214" width="68" height="10" rx="3" style={{ fill: 'var(--accent-dim)', stroke: 'var(--accent)' }} strokeOpacity="0.45" />
+      <text x="190" y="222" textAnchor="middle" style={{ fill: 'var(--accent)' }} fontFamily="monospace" fontSize="6.5" letterSpacing="1">SAVE · VERIFIED</text>
+      <text x="48" y="280" style={{ fill: 'var(--text-3)' }} fontFamily="monospace" fontSize="8" letterSpacing="1.8">NATIVE RUST · EARLY PREVIEW</text>
+    </svg>
+  )
+
   return null
 }
 
@@ -285,7 +314,7 @@ function ProjectRow({ project, index, expanded, onToggle, scrollDir, still }) {
                 </div>
                 {project.link && (
                   <a href={project.link} target="_blank" rel="noopener noreferrer" className="pr-live">
-                    <ExternalLink size={13} /> Visit live site
+                    <ExternalLink size={13} /> {project.linkLabel || 'Visit live site'}
                   </a>
                 )}
               </div>
@@ -324,7 +353,7 @@ export default function Projects() {
               <Scramble text="Selected work" />
             </h2>
             <p className="proj-lede">
-              Six things I built end to end. Open any row for the engineering detail.
+              Seven things I built end to end. Open any row for the engineering detail.
             </p>
           </div>
         </motion.div>

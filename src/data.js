@@ -158,6 +158,26 @@ export const projects = [
     status: "in-dev",
   },
   {
+    id: "forge-room",
+    name: "Forge Room Early Preview",
+    tagline: "Native Rust collaboration IDE preview",
+    description:
+      "A bounded native Rust migration of Forge Room's collaboration workflow. The current Early Preview pairs a tested room/task coordination core with an eframe/egui desktop editor slice for opening, editing, and saving files. Windows packaging is reproducible, while broader IDE, extension-host, and multi-machine collaboration capabilities remain intentionally deferred.",
+    tech: ["Rust", "eframe/egui", "GitHub Actions", "Inno Setup"],
+    features: [
+      "Room, task, evidence, recovery, and scoped-sharing domain model",
+      "Native graphical open/edit/save workflow",
+      "Windows x64 portable archive and per-user installer",
+      "Automated upgrade, uninstall, and preserved-user-data checks",
+      "Explicit Early Preview limits; no Electron, Python, or universal VS Code extension host",
+    ],
+    link: "https://github.com/Atul013/forge-room-ide/pull/1",
+    linkLabel: "View verified preview PR",
+    github: "https://github.com/Atul013/forge-room-ide",
+    award: false,
+    status: "early-preview",
+  },
+  {
     id: "pazham",
     name: "Pazham",
     tagline: "ML-powered banana seed predictor",
