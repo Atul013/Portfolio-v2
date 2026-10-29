@@ -314,7 +314,7 @@ function ProjectRow({ project, index, expanded, onToggle, scrollDir, still }) {
                 </div>
                 {project.link && (
                   <a href={project.link} target="_blank" rel="noopener noreferrer" className="pr-live">
-                    <ExternalLink size={13} /> Visit live site
+                    <ExternalLink size={13} /> {project.linkLabel || 'Visit live site'}
                   </a>
                 )}
               </div>
