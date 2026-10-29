@@ -30,7 +30,7 @@ const PROJ_META = {
   'agentic-rag':  { tag: 'Built at Torcue Digital',       visual: 'rag'         },
   'edge-slm':     { tag: 'Distillation · ONNX inference', visual: 'edgepy'      },
   'bob':          { tag: 'In development · local-first',  visual: 'bob'         },
-  'forge-room': { tag: 'Native Rust · Windows preview', visual: 'forge'       },
+  'forge-room':  { tag: 'Native Rust · Windows preview', visual: 'forge'       },
   'pazham':       { tag: 'CV · built with Amal Babu',     visual: 'pazham'      },
 }
 
